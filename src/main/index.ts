@@ -1,5 +1,7 @@
 import { app, shell, BrowserWindow } from 'electron'
 import { join } from 'path'
+import { getDb } from './db/connection'
+import { registerIpc } from './ipc/registerIpc'
 
 function createMainWindow(): void {
   const mainWindow = new BrowserWindow({
@@ -36,6 +38,9 @@ function createMainWindow(): void {
 
 app.whenReady().then(() => {
   app.setAppUserModelId('com.tenmf01.kakeibo')
+
+  getDb()
+  registerIpc()
 
   createMainWindow()
 

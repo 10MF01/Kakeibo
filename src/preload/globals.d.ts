@@ -1,7 +1,9 @@
+import type { Api } from './index'
+
 export {}
 
 declare global {
   interface Window {
-    api: Record<string, never>
+    api: Api
   }
 }

@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "composite": true,
     "target": "ES2022",
     "lib": ["ES2023", "DOM", "DOM.Iterable"],
     "module": "ESNext",
@@ -21,6 +20,7 @@
   "include": [
     "src/renderer/src/**/*",
     "src/renderer/src/**/*.tsx",
-    "src/shared/**/*"
+    "src/shared/**/*",
+    "src/preload/globals.d.ts"
   ]
 }
