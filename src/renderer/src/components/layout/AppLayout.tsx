@@ -7,6 +7,7 @@ import {
   SettingOutlined,
   TagsOutlined
 } from '@ant-design/icons'
+import CalculatorFab from '@renderer/components/calculator/CalculatorFab'
 
 const { Sider, Content } = Layout
 
@@ -45,6 +46,7 @@ function AppLayout(): React.JSX.Element {
           <Outlet />
         </Content>
       </Layout>
+      <CalculatorFab />
     </Layout>
   )
 }
