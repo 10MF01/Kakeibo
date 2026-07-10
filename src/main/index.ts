@@ -1,4 +1,4 @@
-import { app, shell, BrowserWindow } from 'electron'
+import { app, dialog, shell, BrowserWindow } from 'electron'
 import { join } from 'path'
 import { getDb } from './db/connection'
 import { registerIpc } from './ipc/registerIpc'
@@ -36,18 +36,26 @@ function createMainWindow(): void {
   }
 }
 
-app.whenReady().then(() => {
-  app.setAppUserModelId('com.tenmf01.kakeibo')
+app
+  .whenReady()
+  .then(() => {
+    app.setAppUserModelId('com.tenmf01.kakeibo')
 
-  getDb()
-  registerIpc()
+    getDb()
+    registerIpc()
 
-  createMainWindow()
+    createMainWindow()
 
-  app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) createMainWindow()
+    app.on('activate', () => {
+      if (BrowserWindow.getAllWindows().length === 0) createMainWindow()
+    })
   })
-})
+  .catch((err) => {
+    const message = err instanceof Error ? (err.stack ?? err.message) : String(err)
+    console.error('Failed to start Kakeibo:', message)
+    dialog.showErrorBox('Kakeibo failed to start', message)
+    app.quit()
+  })
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
