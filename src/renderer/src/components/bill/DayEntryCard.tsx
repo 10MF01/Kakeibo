@@ -1,9 +1,11 @@
 import { Button, Card, List, Popconfirm, Space, Tag, Typography } from 'antd'
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons'
+import { useTranslation } from 'react-i18next'
 import dayjs from 'dayjs'
 import type { Category } from '@shared/types/category'
 import type { Transaction } from '@shared/types/transaction'
-import { toDisplayAmount } from '@shared/amount'
+import { useCurrencyFormatter } from '@renderer/hooks/useCurrencyFormatter'
+import { categoryDisplayName } from '@renderer/utils/categoryName'
 
 interface DayEntryCardProps {
   date: string
@@ -14,7 +16,16 @@ interface DayEntryCardProps {
   onDelete: (transaction: Transaction) => void
 }
 
-const WEEKDAYS = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
+const WEEKDAY_KEYS = [
+  'weekday.sun',
+  'weekday.mon',
+  'weekday.tue',
+  'weekday.wed',
+  'weekday.thu',
+  'weekday.fri',
+  'weekday.sat'
+]
+const WEEKDAY_FALLBACK = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
 
 function DayEntryCard({
   date,
@@ -24,12 +35,15 @@ function DayEntryCard({
   onEdit,
   onDelete
 }: DayEntryCardProps): React.JSX.Element {
+  const { t } = useTranslation()
+  const currency = useCurrencyFormatter()
   const dayIncome = transactions
-    .filter((t) => t.type === 'income')
-    .reduce((sum, t) => sum + t.amount, 0)
+    .filter((tx) => tx.type === 'income')
+    .reduce((sum, tx) => sum + tx.amount, 0)
   const dayExpense = transactions
-    .filter((t) => t.type === 'expense')
-    .reduce((sum, t) => sum + t.amount, 0)
+    .filter((tx) => tx.type === 'expense')
+    .reduce((sum, tx) => sum + tx.amount, 0)
+  const weekday = dayjs(date).day()
 
   return (
     <Card
@@ -38,34 +52,30 @@ function DayEntryCard({
         <Space>
           <span>{date}</span>
           <Typography.Text type="secondary" style={{ fontWeight: 400 }}>
-            {WEEKDAYS[dayjs(date).day()]}
+            {t(WEEKDAY_KEYS[weekday], WEEKDAY_FALLBACK[weekday])}
           </Typography.Text>
         </Space>
       }
       extra={
         <Space size={12}>
-          {dayIncome > 0 && (
-            <Typography.Text type="success">收 {toDisplayAmount(dayIncome).toFixed(2)}</Typography.Text>
-          )}
-          {dayExpense > 0 && (
-            <Typography.Text type="danger">支 {toDisplayAmount(dayExpense).toFixed(2)}</Typography.Text>
-          )}
+          {dayIncome > 0 && <Typography.Text type="success">{currency.format(dayIncome)}</Typography.Text>}
+          {dayExpense > 0 && <Typography.Text type="danger">{currency.format(dayExpense)}</Typography.Text>}
           <Button size="small" type="link" icon={<PlusOutlined />} onClick={() => onAdd(date)}>
-            添加
+            {t('bills.detail.add')}
           </Button>
         </Space>
       }
       style={{ marginBottom: 12 }}
     >
       {transactions.length === 0 ? (
-        <Typography.Text type="secondary">这一天还没有记录</Typography.Text>
+        <Typography.Text type="secondary">{t('bills.detail.noRecord')}</Typography.Text>
       ) : (
         <List
           size="small"
           dataSource={transactions}
-          renderItem={(t) => {
-            const category = categoryMap.get(t.categoryId)
-            const subcategory = t.subcategoryId ? categoryMap.get(t.subcategoryId) : null
+          renderItem={(tx) => {
+            const category = categoryMap.get(tx.categoryId)
+            const subcategory = tx.subcategoryId ? categoryMap.get(tx.subcategoryId) : null
             return (
               <List.Item
                 actions={[
@@ -74,22 +84,26 @@ function DayEntryCard({
                     type="text"
                     size="small"
                     icon={<EditOutlined />}
-                    onClick={() => onEdit(t)}
+                    onClick={() => onEdit(tx)}
                   />,
-                  <Popconfirm key="delete" title="删除这条记录？" onConfirm={() => onDelete(t)}>
+                  <Popconfirm
+                    key="delete"
+                    title={t('bills.detail.deleteConfirm')}
+                    onConfirm={() => onDelete(tx)}
+                  >
                     <Button type="text" size="small" danger icon={<DeleteOutlined />} />
                   </Popconfirm>
                 ]}
               >
                 <Space>
-                  <Tag color={t.type === 'income' ? 'green' : 'volcano'}>
-                    {t.type === 'income' ? '收入' : '支出'}
+                  <Tag color={tx.type === 'income' ? 'green' : 'volcano'}>
+                    {tx.type === 'income' ? t('transaction.form.income') : t('transaction.form.expense')}
                   </Tag>
-                  <span>{category?.name ?? '未知分类'}</span>
-                  {subcategory && <Tag>{subcategory.name}</Tag>}
-                  {t.note && <Typography.Text type="secondary">{t.note}</Typography.Text>}
+                  <span>{category ? categoryDisplayName(category, t) : '-'}</span>
+                  {subcategory && <Tag>{categoryDisplayName(subcategory, t)}</Tag>}
+                  {tx.note && <Typography.Text type="secondary">{tx.note}</Typography.Text>}
                 </Space>
-                <span>{toDisplayAmount(t.amount).toFixed(2)}</span>
+                <span>{currency.format(tx.amount)}</span>
               </List.Item>
             )
           }}

@@ -1,12 +1,17 @@
 import { Table } from 'antd'
+import { useTranslation } from 'react-i18next'
 import type { CategoryBreakdownItem } from '@shared/types/report'
-import { toDisplayAmount } from '@shared/amount'
+import { useCurrencyFormatter } from '@renderer/hooks/useCurrencyFormatter'
+import { breakdownItemDisplayName } from '@renderer/utils/categoryName'
 
 interface CategoryBreakdownTableProps {
   data: CategoryBreakdownItem[]
 }
 
 function CategoryBreakdownTable({ data }: CategoryBreakdownTableProps): React.JSX.Element {
+  const { t } = useTranslation()
+  const currency = useCurrencyFormatter()
+
   return (
     <Table
       size="small"
@@ -14,20 +19,24 @@ function CategoryBreakdownTable({ data }: CategoryBreakdownTableProps): React.JS
       dataSource={data}
       pagination={false}
       columns={[
-        { title: '分类', dataIndex: 'categoryName' },
         {
-          title: '金额',
-          dataIndex: 'total',
-          align: 'right',
-          render: (value: number) => toDisplayAmount(value).toFixed(2)
+          title: t('report.table.category'),
+          dataIndex: 'categoryName',
+          render: (_: string, record: CategoryBreakdownItem) => breakdownItemDisplayName(record, t)
         },
         {
-          title: '占比',
+          title: t('report.table.amount'),
+          dataIndex: 'total',
+          align: 'right',
+          render: (value: number) => currency.format(value)
+        },
+        {
+          title: t('report.table.percentage'),
           dataIndex: 'percentage',
           align: 'right',
           render: (value: number) => `${value}%`
         },
-        { title: '笔数', dataIndex: 'count', align: 'right' }
+        { title: t('report.table.count'), dataIndex: 'count', align: 'right' }
       ]}
     />
   )

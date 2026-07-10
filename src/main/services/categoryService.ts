@@ -115,6 +115,8 @@ export function updateCategory(id: number, input: CategoryUpdateInput): Category
   if (input.name !== undefined) {
     fields.push('name = ?')
     params.push(input.name)
+    // A user-edited name is free text from now on — stop retranslating it via name_key.
+    fields.push('name_key = NULL')
   }
   if (input.icon !== undefined) {
     fields.push('icon = ?')

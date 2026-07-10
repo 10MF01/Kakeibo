@@ -1,6 +1,9 @@
 import { useEffect, useMemo } from 'react'
 import { Form, Input, InputNumber, Modal, Radio, Select } from 'antd'
+import { useTranslation } from 'react-i18next'
 import type { Category, CategoryType } from '@shared/types/category'
+import { useCurrencyFormatter } from '@renderer/hooks/useCurrencyFormatter'
+import { categoryDisplayName } from '@renderer/utils/categoryName'
 
 export interface TransactionFormValues {
   type: CategoryType
@@ -45,6 +48,8 @@ function TransactionForm({
   onCancel,
   onSubmit
 }: TransactionFormProps): React.JSX.Element {
+  const { t } = useTranslation()
+  const currency = useCurrencyFormatter()
   const [form] = Form.useForm<InternalFormValues>()
   const type = Form.useWatch('type', form)
   const categoryId = Form.useWatch('categoryId', form)
@@ -65,12 +70,15 @@ function TransactionForm({
     () =>
       categories
         .filter((c) => c.parentId === null && c.type === type)
-        .map((c) => ({ value: c.id, label: c.name })),
-    [categories, type]
+        .map((c) => ({ value: c.id, label: categoryDisplayName(c, t) })),
+    [categories, type, t]
   )
   const subOptions = useMemo(
-    () => categories.filter((c) => c.parentId === categoryId).map((c) => ({ value: c.id, label: c.name })),
-    [categories, categoryId]
+    () =>
+      categories
+        .filter((c) => c.parentId === categoryId)
+        .map((c) => ({ value: c.id, label: categoryDisplayName(c, t) })),
+    [categories, categoryId, t]
   )
 
   const handleTypeChange = (): void => {
@@ -94,7 +102,7 @@ function TransactionForm({
 
   return (
     <Modal
-      title={`记一笔 · ${date}`}
+      title={t('transaction.form.title', { date })}
       open={open}
       onCancel={onCancel}
       onOk={handleOk}
@@ -102,31 +110,45 @@ function TransactionForm({
       destroyOnClose
     >
       <Form form={form} layout="vertical">
-        <Form.Item name="type" label="类型" rules={[{ required: true }]}>
+        <Form.Item name="type" label={t('transaction.form.type')} rules={[{ required: true }]}>
           <Radio.Group onChange={handleTypeChange}>
-            <Radio.Button value="expense">支出</Radio.Button>
-            <Radio.Button value="income">收入</Radio.Button>
+            <Radio.Button value="expense">{t('transaction.form.expense')}</Radio.Button>
+            <Radio.Button value="income">{t('transaction.form.income')}</Radio.Button>
           </Radio.Group>
         </Form.Item>
         <Form.Item
           name="categoryId"
-          label="一级分类"
-          rules={[{ required: true, message: '请选择一级分类' }]}
+          label={t('transaction.form.primaryCategory')}
+          rules={[{ required: true, message: t('transaction.form.primaryRequired') }]}
         >
-          <Select options={primaryOptions} placeholder="选择分类" onChange={handleCategoryChange} />
+          <Select
+            options={primaryOptions}
+            placeholder={t('transaction.form.selectCategory')}
+            onChange={handleCategoryChange}
+          />
         </Form.Item>
-        <Form.Item name="subcategoryId" label="二级分类（选填，仅作备注）">
-          <Select options={subOptions} placeholder="选择二级分类" allowClear disabled={!categoryId} />
+        <Form.Item name="subcategoryId" label={t('transaction.form.subcategory')}>
+          <Select
+            options={subOptions}
+            placeholder={t('transaction.form.selectSubcategory')}
+            allowClear
+            disabled={!categoryId}
+          />
         </Form.Item>
         <Form.Item
           name="displayAmount"
-          label="金额"
-          rules={[{ required: true, message: '请输入金额' }]}
+          label={t('transaction.form.amount')}
+          rules={[{ required: true, message: t('transaction.form.amountRequired') }]}
         >
-          <InputNumber min={0.01} precision={2} style={{ width: '100%' }} placeholder="0.00" />
+          <InputNumber
+            min={currency.precision > 0 ? 0.01 : 1}
+            precision={currency.precision}
+            style={{ width: '100%' }}
+            placeholder={currency.precision > 0 ? '0.00' : '0'}
+          />
         </Form.Item>
-        <Form.Item name="note" label="备注">
-          <Input placeholder="选填" maxLength={50} />
+        <Form.Item name="note" label={t('transaction.form.note')}>
+          <Input placeholder={t('transaction.form.notePlaceholder')} maxLength={50} />
         </Form.Item>
       </Form>
     </Modal>

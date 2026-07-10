@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { DatePicker, Form, Input, Modal } from 'antd'
+import { useTranslation } from 'react-i18next'
 import type { Dayjs } from 'dayjs'
 
 export interface BillFormValues {
@@ -16,6 +17,7 @@ interface BillFormProps {
 }
 
 function BillForm({ open, confirmLoading, onCancel, onSubmit }: BillFormProps): React.JSX.Element {
+  const { t } = useTranslation()
   const [form] = Form.useForm<{ name?: string; range: [Dayjs, Dayjs] }>()
 
   useEffect(() => {
@@ -34,7 +36,7 @@ function BillForm({ open, confirmLoading, onCancel, onSubmit }: BillFormProps): 
 
   return (
     <Modal
-      title="新建账单"
+      title={t('bills.form.title')}
       open={open}
       onCancel={onCancel}
       onOk={handleOk}
@@ -44,13 +46,13 @@ function BillForm({ open, confirmLoading, onCancel, onSubmit }: BillFormProps): 
       <Form form={form} layout="vertical">
         <Form.Item
           name="range"
-          label="账单周期"
-          rules={[{ required: true, message: '请选择账单起止日期' }]}
+          label={t('bills.form.period')}
+          rules={[{ required: true, message: t('bills.form.periodRequired') }]}
         >
           <DatePicker.RangePicker style={{ width: '100%' }} />
         </Form.Item>
-        <Form.Item name="name" label="账单名称（可选）">
-          <Input placeholder="默认使用日期范围作为名称" maxLength={30} />
+        <Form.Item name="name" label={t('bills.form.name')}>
+          <Input placeholder={t('bills.form.namePlaceholder')} maxLength={30} />
         </Form.Item>
       </Form>
     </Modal>

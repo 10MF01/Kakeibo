@@ -1,7 +1,9 @@
 import { Pie } from '@ant-design/plots'
 import { Empty } from 'antd'
+import { useTranslation } from 'react-i18next'
 import type { CategoryBreakdownItem } from '@shared/types/report'
 import { buildPieData } from '@renderer/utils/pieData'
+import { useCurrencyFormatter } from '@renderer/hooks/useCurrencyFormatter'
 
 interface CategoryPieChartProps {
   data: CategoryBreakdownItem[]
@@ -16,11 +18,14 @@ function CategoryPieChart({
   height = 320,
   animate = true
 }: CategoryPieChartProps): React.JSX.Element {
+  const { t } = useTranslation()
+  const currency = useCurrencyFormatter()
+
   if (data.length === 0) {
-    return <Empty description="暂无数据" style={{ padding: '48px 0' }} />
+    return <Empty description={t('report.noData')} style={{ padding: '48px 0' }} />
   }
 
-  const pieData = buildPieData(data)
+  const pieData = buildPieData(data, t)
 
   return (
     <Pie
@@ -45,7 +50,13 @@ function CategoryPieChart({
         color: { position: 'right', rowPadding: 4 }
       }}
       tooltip={{
-        items: [{ field: 'value', name: '金额', valueFormatter: (v: number) => v.toFixed(2) }]
+        items: [
+          {
+            field: 'value',
+            name: t('report.table.amount'),
+            valueFormatter: (v: number) => v.toFixed(currency.precision)
+          }
+        ]
       }}
     />
   )

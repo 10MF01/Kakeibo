@@ -3,7 +3,9 @@ import { writeFile } from 'fs/promises'
 import { getPrintWindow, loadPrintRoute } from '../windows/printWindow'
 import { getReportSummary } from './reportService'
 import { IPC } from '@shared/ipcChannels'
+import { EXPORT_LABELS } from '@shared/exportLabels'
 import type { ExportResult } from '@shared/types/report'
+import type { AppLanguage } from '@shared/types/settings'
 
 function sanitizeFileName(name: string): string {
   return name.replace(/[\\/:*?"<>|]/g, '_')
@@ -28,12 +30,16 @@ function waitForPrintReady(webContentsId: number, timeoutMs = 10000): Promise<vo
   })
 }
 
-export async function exportReportPdf(billId: number): Promise<ExportResult | null> {
+export async function exportReportPdf(
+  billId: number,
+  language: AppLanguage
+): Promise<ExportResult | null> {
+  const labels = EXPORT_LABELS[language]
   const summary = getReportSummary(billId)
-  const defaultPath = `${sanitizeFileName(summary.billName)}-消费报告.pdf`
+  const defaultPath = `${sanitizeFileName(summary.billName)}-${labels.reportSuffix}.pdf`
 
   const { canceled, filePath } = await dialog.showSaveDialog({
-    title: '导出 PDF 报告',
+    title: labels.pdfDialogTitle,
     defaultPath,
     filters: [{ name: 'PDF', extensions: ['pdf'] }]
   })

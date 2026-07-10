@@ -1,0 +1,151 @@
+{
+  "app": { "title": "Kakeibo" },
+  "weekday": {
+    "sun": "日",
+    "mon": "月",
+    "tue": "火",
+    "wed": "水",
+    "thu": "木",
+    "fri": "金",
+    "sat": "土"
+  },
+  "nav": {
+    "dashboard": "ホーム",
+    "bills": "家計簿",
+    "categories": "カテゴリ管理",
+    "settings": "設定"
+  },
+  "dashboard": {
+    "title": "ホーム",
+    "currentBill": "現在の家計簿：{{name}}",
+    "noActiveBill": "進行中の家計簿がありません",
+    "createBill": "家計簿を作成する",
+    "goToBill": "記録する",
+    "periodIncome": "今期の収入",
+    "periodExpense": "今期の支出",
+    "periodBalance": "今期の収支",
+    "recentTransactions": "最近の記録",
+    "noTransactions": "まだ記録がありません。記録してみましょう"
+  },
+  "bills": {
+    "title": "家計簿",
+    "subtitle": "期間は自由に設定できます（例：7/15〜8/15）。期間内の日ごとに入力フォームが生成されます。",
+    "create": "家計簿を新規作成",
+    "empty": "まだ家計簿がありません。作成しましょう",
+    "active": "進行中",
+    "createFailed": "家計簿の作成に失敗しました",
+    "notFound": "家計簿が見つかりません",
+    "saveFailed": "保存に失敗しました",
+    "deleteFailed": "削除に失敗しました",
+    "form": {
+      "title": "家計簿を新規作成",
+      "period": "期間",
+      "periodRequired": "開始日と終了日を選択してください",
+      "name": "家計簿名（任意）",
+      "namePlaceholder": "未入力の場合は日付範囲を名称にします"
+    },
+    "detail": {
+      "viewReport": "レポートを見る",
+      "income": "収入",
+      "expense": "支出",
+      "balance": "収支",
+      "noRecord": "この日はまだ記録がありません",
+      "add": "追加",
+      "deleteConfirm": "この記録を削除しますか？"
+    }
+  },
+  "transaction": {
+    "form": {
+      "title": "記録する · {{date}}",
+      "type": "種類",
+      "expense": "支出",
+      "income": "収入",
+      "primaryCategory": "カテゴリ",
+      "primaryRequired": "カテゴリを選択してください",
+      "subcategory": "サブカテゴリ（任意・メモ用）",
+      "amount": "金額",
+      "amountRequired": "金額を入力してください",
+      "note": "メモ",
+      "notePlaceholder": "任意",
+      "selectCategory": "カテゴリを選択",
+      "selectSubcategory": "サブカテゴリを選択"
+    }
+  },
+  "categories": {
+    "title": "カテゴリ管理",
+    "subtitle": "カテゴリは集計に使用され、サブカテゴリはメモ用で集計には含まれません。",
+    "expense": "支出カテゴリ",
+    "income": "収入カテゴリ",
+    "createPrimary": "カテゴリを新規作成",
+    "empty": "カテゴリがありません",
+    "addSubcategory": "サブカテゴリを追加",
+    "deleteConfirmTitle": "このカテゴリを削除しますか？",
+    "deleteConfirmDesc": "紐づく記録やサブカテゴリがある場合は削除できません",
+    "editTitle": "カテゴリを編集",
+    "form": {
+      "name": "名称",
+      "nameRequired": "カテゴリ名を入力してください",
+      "namePlaceholder": "例：食費",
+      "color": "カラー",
+      "subcategoryNamePlaceholder": "サブカテゴリ名"
+    },
+    "errors": {
+      "CATEGORY_DUPLICATE_NAME": "同じ階層に同名のカテゴリが既に存在します",
+      "CATEGORY_HAS_SUBCATEGORIES": "先にサブカテゴリを削除してください",
+      "CATEGORY_IN_USE": "このカテゴリは記録で使用されているため削除できません",
+      "CATEGORY_NOT_FOUND": "カテゴリが見つかりません。再読み込みしてください",
+      "default": "操作に失敗しました"
+    },
+    "seed": {
+      "food": "食費",
+      "transport": "交通費",
+      "housing": "住居費",
+      "utilities": "水道光熱費",
+      "entertainment": "娯楽費",
+      "shopping": "買い物",
+      "medical": "医療費",
+      "education": "教育費",
+      "communication": "通信費",
+      "otherExpense": "その他支出",
+      "salary": "給与",
+      "bonus": "ボーナス",
+      "sideIncome": "副業収入",
+      "investment": "投資収益",
+      "otherIncome": "その他収入"
+    }
+  },
+  "report": {
+    "title": "{{name}} · 収支レポート",
+    "exportPdf": "PDFを出力",
+    "exportExcel": "Excelを出力",
+    "totalIncome": "総収入",
+    "totalExpense": "総支出",
+    "balance": "収支",
+    "expensePie": "支出カテゴリ内訳",
+    "expenseDetail": "支出明細",
+    "incomePie": "収入カテゴリ内訳",
+    "incomeDetail": "収入明細",
+    "other": "その他",
+    "noData": "データがありません",
+    "exportSuccess": "{{path}} に出力しました",
+    "exportPdfFailed": "PDFの出力に失敗しました",
+    "exportExcelFailed": "Excelの出力に失敗しました",
+    "loadFailed": "レポートの読み込みに失敗しました",
+    "generatedAt": "生成日時",
+    "period": "期間",
+    "table": {
+      "category": "カテゴリ",
+      "amount": "金額",
+      "percentage": "割合",
+      "count": "件数"
+    }
+  },
+  "settings": {
+    "title": "設定",
+    "language": "言語",
+    "languageDesc": "言語を切り替えると金額表示の通貨記号も切り替わります"
+  },
+  "calculator": {
+    "title": "電卓"
+  }
+}

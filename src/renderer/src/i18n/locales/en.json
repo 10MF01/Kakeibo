@@ -1,0 +1,151 @@
+{
+  "app": { "title": "Kakeibo" },
+  "weekday": {
+    "sun": "Sun",
+    "mon": "Mon",
+    "tue": "Tue",
+    "wed": "Wed",
+    "thu": "Thu",
+    "fri": "Fri",
+    "sat": "Sat"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "bills": "Bills",
+    "categories": "Categories",
+    "settings": "Settings"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "currentBill": "Current bill: {{name}}",
+    "noActiveBill": "No bill is currently active",
+    "createBill": "Create a bill",
+    "goToBill": "Go to bill",
+    "periodIncome": "Income",
+    "periodExpense": "Expense",
+    "periodBalance": "Balance",
+    "recentTransactions": "Recent transactions",
+    "noTransactions": "No transactions yet — add your first one"
+  },
+  "bills": {
+    "title": "Bills",
+    "subtitle": "Pick any date range you like (e.g. 7/15 – 8/15) — a daily entry form is generated for each day in the period.",
+    "create": "New bill",
+    "empty": "No bills yet — create one to get started",
+    "active": "Active",
+    "createFailed": "Failed to create bill",
+    "notFound": "Bill not found",
+    "saveFailed": "Failed to save",
+    "deleteFailed": "Failed to delete",
+    "form": {
+      "title": "New bill",
+      "period": "Date range",
+      "periodRequired": "Please select a start and end date",
+      "name": "Bill name (optional)",
+      "namePlaceholder": "Defaults to the date range"
+    },
+    "detail": {
+      "viewReport": "View report",
+      "income": "Income",
+      "expense": "Expense",
+      "balance": "Balance",
+      "noRecord": "No entries yet for this day",
+      "add": "Add",
+      "deleteConfirm": "Delete this entry?"
+    }
+  },
+  "transaction": {
+    "form": {
+      "title": "New entry · {{date}}",
+      "type": "Type",
+      "expense": "Expense",
+      "income": "Income",
+      "primaryCategory": "Category",
+      "primaryRequired": "Please select a category",
+      "subcategory": "Subcategory (optional, note only)",
+      "amount": "Amount",
+      "amountRequired": "Please enter an amount",
+      "note": "Note",
+      "notePlaceholder": "Optional",
+      "selectCategory": "Select a category",
+      "selectSubcategory": "Select a subcategory"
+    }
+  },
+  "categories": {
+    "title": "Categories",
+    "subtitle": "Categories drive the report statistics; subcategories are notes only and are not aggregated.",
+    "expense": "Expense categories",
+    "income": "Income categories",
+    "createPrimary": "New category",
+    "empty": "No categories yet",
+    "addSubcategory": "Add subcategory",
+    "deleteConfirmTitle": "Delete this category?",
+    "deleteConfirmDesc": "Cannot be deleted while it has subcategories or linked transactions",
+    "editTitle": "Edit category",
+    "form": {
+      "name": "Name",
+      "nameRequired": "Please enter a name",
+      "namePlaceholder": "e.g. Food",
+      "color": "Color tag",
+      "subcategoryNamePlaceholder": "Subcategory name"
+    },
+    "errors": {
+      "CATEGORY_DUPLICATE_NAME": "A category with this name already exists at this level",
+      "CATEGORY_HAS_SUBCATEGORIES": "Delete its subcategories first",
+      "CATEGORY_IN_USE": "This category is referenced by existing transactions",
+      "CATEGORY_NOT_FOUND": "Category not found — please refresh",
+      "default": "Something went wrong"
+    },
+    "seed": {
+      "food": "Food",
+      "transport": "Transport",
+      "housing": "Housing",
+      "utilities": "Utilities",
+      "entertainment": "Entertainment",
+      "shopping": "Shopping",
+      "medical": "Medical",
+      "education": "Education",
+      "communication": "Communication",
+      "otherExpense": "Other Expense",
+      "salary": "Salary",
+      "bonus": "Bonus",
+      "sideIncome": "Side Income",
+      "investment": "Investment",
+      "otherIncome": "Other Income"
+    }
+  },
+  "report": {
+    "title": "{{name}} · Report",
+    "exportPdf": "Export PDF",
+    "exportExcel": "Export Excel",
+    "totalIncome": "Total income",
+    "totalExpense": "Total expense",
+    "balance": "Balance",
+    "expensePie": "Expense breakdown",
+    "expenseDetail": "Expense detail",
+    "incomePie": "Income breakdown",
+    "incomeDetail": "Income detail",
+    "other": "Other",
+    "noData": "No data",
+    "exportSuccess": "Exported to {{path}}",
+    "exportPdfFailed": "Failed to export PDF",
+    "exportExcelFailed": "Failed to export Excel",
+    "loadFailed": "Failed to load report",
+    "generatedAt": "Generated at",
+    "period": "Bill period",
+    "table": {
+      "category": "Category",
+      "amount": "Amount",
+      "percentage": "Share",
+      "count": "Count"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "languageDesc": "Switching language also switches the currency symbol used for amounts"
+  },
+  "calculator": {
+    "title": "Calculator"
+  }
+}

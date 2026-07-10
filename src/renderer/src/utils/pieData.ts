@@ -1,6 +1,8 @@
+import type { TFunction } from 'i18next'
 import type { CategoryBreakdownItem } from '@shared/types/report'
 import { toDisplayAmount } from '@shared/amount'
 import { colorForCategory, OTHER_SLICE_COLOR } from './chartPalette'
+import { breakdownItemDisplayName } from './categoryName'
 
 export interface PieDatum {
   name: string
@@ -10,13 +12,13 @@ export interface PieDatum {
 
 const MAX_SLICES = 7
 
-/** Past the token ceiling, fold the tail into "其他" rather than generating more hues. */
-export function buildPieData(items: CategoryBreakdownItem[]): PieDatum[] {
+/** Past the token ceiling, fold the tail into "Other" rather than generating more hues. */
+export function buildPieData(items: CategoryBreakdownItem[], t: TFunction): PieDatum[] {
   const sorted = [...items].sort((a, b) => b.total - a.total)
 
   if (sorted.length <= MAX_SLICES) {
     return sorted.map((item) => ({
-      name: item.categoryName,
+      name: breakdownItemDisplayName(item, t),
       value: toDisplayAmount(item.total),
       color: colorForCategory(item.categoryId)
     }))
@@ -28,10 +30,10 @@ export function buildPieData(items: CategoryBreakdownItem[]): PieDatum[] {
 
   return [
     ...head.map((item) => ({
-      name: item.categoryName,
+      name: breakdownItemDisplayName(item, t),
       value: toDisplayAmount(item.total),
       color: colorForCategory(item.categoryId)
     })),
-    { name: '其他', value: toDisplayAmount(otherTotal), color: OTHER_SLICE_COLOR }
+    { name: t('report.other'), value: toDisplayAmount(otherTotal), color: OTHER_SLICE_COLOR }
   ]
 }

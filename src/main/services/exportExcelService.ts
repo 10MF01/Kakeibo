@@ -5,57 +5,63 @@ import { getDb } from '../db/connection'
 import { getReportSummary } from './reportService'
 import type { ExportResult } from '@shared/types/report'
 import { toDisplayAmount } from '@shared/amount'
+import { EXPORT_LABELS } from '@shared/exportLabels'
+import { resolveCategorySeedLabel } from '@shared/categorySeedLabels'
+import type { AppLanguage } from '@shared/types/settings'
 
 interface TransactionRow {
   date: string
   type: 'income' | 'expense'
   category: string
+  category_name_key: string | null
   subcategory: string | null
+  subcategory_name_key: string | null
   amount: number
   note: string | null
 }
 
-async function buildExcelBuffer(billId: number): Promise<Buffer> {
+async function buildExcelBuffer(billId: number, language: AppLanguage): Promise<Buffer> {
+  const labels = EXPORT_LABELS[language]
   const summary = getReportSummary(billId)
   const workbook = new ExcelJS.Workbook()
   workbook.creator = 'Kakeibo'
   workbook.created = new Date()
 
-  const summarySheet = workbook.addWorksheet('汇总')
+  const summarySheet = workbook.addWorksheet(labels.summarySheet)
   summarySheet.columns = [
-    { header: '类型', key: 'type', width: 12 },
-    { header: '分类', key: 'category', width: 20 },
-    { header: '金额', key: 'amount', width: 15 },
-    { header: '占比', key: 'percentage', width: 10 },
-    { header: '笔数', key: 'count', width: 10 }
+    { header: labels.type, key: 'type', width: 12 },
+    { header: labels.category, key: 'category', width: 20 },
+    { header: labels.amount, key: 'amount', width: 15 },
+    { header: labels.percentage, key: 'percentage', width: 10 },
+    { header: labels.count, key: 'count', width: 10 }
   ]
   summarySheet.getRow(1).font = { bold: true }
   summarySheet.getColumn('amount').numFmt = '#,##0.00'
 
-  summarySheet.addRow({ type: '账单', category: summary.billName })
-  summarySheet.addRow({ type: '周期', category: `${summary.startDate} ~ ${summary.endDate}` })
+  summarySheet.addRow({ type: labels.bill, category: summary.billName })
+  summarySheet.addRow({ type: labels.period, category: `${summary.startDate} ~ ${summary.endDate}` })
   summarySheet.addRow({})
-  summarySheet.addRow({ type: '收入合计', amount: toDisplayAmount(summary.totalIncome) })
-  summarySheet.addRow({ type: '支出合计', amount: toDisplayAmount(summary.totalExpense) })
-  summarySheet.addRow({ type: '盈余', amount: toDisplayAmount(summary.balance) })
+  summarySheet.addRow({ type: labels.totalIncome, amount: toDisplayAmount(summary.totalIncome) })
+  summarySheet.addRow({ type: labels.totalExpense, amount: toDisplayAmount(summary.totalExpense) })
+  summarySheet.addRow({ type: labels.balance, amount: toDisplayAmount(summary.balance) })
   summarySheet.addRow({})
 
-  summarySheet.addRow({ type: '支出明细' }).font = { bold: true }
+  summarySheet.addRow({ type: labels.expenseDetail }).font = { bold: true }
   for (const item of summary.expenseByCategory) {
     summarySheet.addRow({
-      type: '支出',
-      category: item.categoryName,
+      type: labels.expense,
+      category: resolveCategorySeedLabel(item.categoryNameKey, item.categoryName, language),
       amount: toDisplayAmount(item.total),
       percentage: `${item.percentage}%`,
       count: item.count
     })
   }
   summarySheet.addRow({})
-  summarySheet.addRow({ type: '收入明细' }).font = { bold: true }
+  summarySheet.addRow({ type: labels.incomeDetail }).font = { bold: true }
   for (const item of summary.incomeByCategory) {
     summarySheet.addRow({
-      type: '收入',
-      category: item.categoryName,
+      type: labels.income,
+      category: resolveCategorySeedLabel(item.categoryNameKey, item.categoryName, language),
       amount: toDisplayAmount(item.total),
       percentage: `${item.percentage}%`,
       count: item.count
@@ -65,7 +71,8 @@ async function buildExcelBuffer(billId: number): Promise<Buffer> {
   const db = getDb()
   const transactions = db
     .prepare(
-      `SELECT t.date, t.type, c.name as category, s.name as subcategory, t.amount, t.note
+      `SELECT t.date, t.type, c.name as category, c.name_key as category_name_key,
+              s.name as subcategory, s.name_key as subcategory_name_key, t.amount, t.note
        FROM transactions t
        JOIN categories c ON t.category_id = c.id
        LEFT JOIN categories s ON t.subcategory_id = s.id
@@ -74,23 +81,25 @@ async function buildExcelBuffer(billId: number): Promise<Buffer> {
     )
     .all(billId) as TransactionRow[]
 
-  const txSheet = workbook.addWorksheet('流水明细')
+  const txSheet = workbook.addWorksheet(labels.transactionsSheet)
   txSheet.columns = [
-    { header: '日期', key: 'date', width: 12 },
-    { header: '类型', key: 'type', width: 8 },
-    { header: '一级分类', key: 'category', width: 16 },
-    { header: '二级分类', key: 'subcategory', width: 16 },
-    { header: '金额', key: 'amount', width: 12 },
-    { header: '备注', key: 'note', width: 24 }
+    { header: labels.date, key: 'date', width: 12 },
+    { header: labels.type, key: 'type', width: 8 },
+    { header: labels.primaryCategory, key: 'category', width: 16 },
+    { header: labels.subcategory, key: 'subcategory', width: 16 },
+    { header: labels.amount, key: 'amount', width: 12 },
+    { header: labels.note, key: 'note', width: 24 }
   ]
   txSheet.getRow(1).font = { bold: true }
   txSheet.getColumn('amount').numFmt = '#,##0.00'
   for (const t of transactions) {
     txSheet.addRow({
       date: t.date,
-      type: t.type === 'income' ? '收入' : '支出',
-      category: t.category,
-      subcategory: t.subcategory ?? '',
+      type: t.type === 'income' ? labels.income : labels.expense,
+      category: resolveCategorySeedLabel(t.category_name_key, t.category, language),
+      subcategory: t.subcategory
+        ? resolveCategorySeedLabel(t.subcategory_name_key, t.subcategory, language)
+        : '',
       amount: toDisplayAmount(t.amount),
       note: t.note ?? ''
     })
@@ -104,18 +113,22 @@ function sanitizeFileName(name: string): string {
   return name.replace(/[\\/:*?"<>|]/g, '_')
 }
 
-export async function exportReportExcel(billId: number): Promise<ExportResult | null> {
+export async function exportReportExcel(
+  billId: number,
+  language: AppLanguage
+): Promise<ExportResult | null> {
+  const labels = EXPORT_LABELS[language]
   const summary = getReportSummary(billId)
-  const defaultPath = `${sanitizeFileName(summary.billName)}-消费报告.xlsx`
+  const defaultPath = `${sanitizeFileName(summary.billName)}-${labels.reportSuffix}.xlsx`
 
   const { canceled, filePath } = await dialog.showSaveDialog({
-    title: '导出 Excel 报告',
+    title: labels.excelDialogTitle,
     defaultPath,
     filters: [{ name: 'Excel', extensions: ['xlsx'] }]
   })
   if (canceled || !filePath) return null
 
-  const buffer = await buildExcelBuffer(billId)
+  const buffer = await buildExcelBuffer(billId, language)
   await writeFile(filePath, buffer)
   return { filePath }
 }

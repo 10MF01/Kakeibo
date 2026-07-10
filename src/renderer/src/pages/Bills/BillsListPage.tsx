@@ -2,11 +2,13 @@ import { useEffect, useState } from 'react'
 import { Button, Card, Empty, List, Tag, Typography, message } from 'antd'
 import { PlusOutlined } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import dayjs from 'dayjs'
 import BillForm, { type BillFormValues } from '@renderer/components/bill/BillForm'
 import { useBillStore } from '@renderer/store/useBillStore'
 
 function BillsListPage(): React.JSX.Element {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const { bills, fetch, refresh } = useBillStore()
   const [formOpen, setFormOpen] = useState(false)
@@ -26,7 +28,7 @@ function BillsListPage(): React.JSX.Element {
       setFormOpen(false)
       navigate(`/bills/${bill.id}`)
     } catch (err) {
-      message.error(err instanceof Error ? err.message : '创建账单失败')
+      message.error(err instanceof Error ? err.message : t('bills.createFailed'))
     } finally {
       setSubmitting(false)
     }
@@ -36,17 +38,15 @@ function BillsListPage(): React.JSX.Element {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
-          <Typography.Title level={3}>账单</Typography.Title>
-          <Typography.Paragraph type="secondary">
-            账单周期由你自由指定，例如 7/15 ~ 8/15，系统会按天为你生成录入表单。
-          </Typography.Paragraph>
+          <Typography.Title level={3}>{t('bills.title')}</Typography.Title>
+          <Typography.Paragraph type="secondary">{t('bills.subtitle')}</Typography.Paragraph>
         </div>
         <Button type="primary" icon={<PlusOutlined />} onClick={() => setFormOpen(true)}>
-          新建账单
+          {t('bills.create')}
         </Button>
       </div>
       {bills.length === 0 ? (
-        <Empty description="还没有账单，先创建一个吧" />
+        <Empty description={t('bills.empty')} />
       ) : (
         <List
           grid={{ gutter: 16, column: 3 }}
@@ -60,7 +60,7 @@ function BillsListPage(): React.JSX.Element {
                   <Typography.Text strong>{bill.name}</Typography.Text>
                   {isActive && (
                     <Tag color="green" style={{ marginLeft: 8 }}>
-                      进行中
+                      {t('bills.active')}
                     </Tag>
                   )}
                   <div>

@@ -2,13 +2,14 @@ import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Button, Space, Spin, Statistic, Typography, message } from 'antd'
 import { FileTextOutlined } from '@ant-design/icons'
+import { useTranslation } from 'react-i18next'
 import dayjs from 'dayjs'
 import DayEntryCard from '@renderer/components/bill/DayEntryCard'
 import TransactionForm, {
   type TransactionFormValues
 } from '@renderer/components/bill/TransactionForm'
 import { useCategoryStore } from '@renderer/store/useCategoryStore'
-import { toDisplayAmount } from '@shared/amount'
+import { useCurrencyFormatter } from '@renderer/hooks/useCurrencyFormatter'
 import type { Bill } from '@shared/types/bill'
 import type { Transaction } from '@shared/types/transaction'
 
@@ -30,9 +31,11 @@ interface FormState {
 }
 
 function BillDetailPage(): React.JSX.Element {
+  const { t } = useTranslation()
   const { billId } = useParams<{ billId: string }>()
   const navigate = useNavigate()
   const { categories, fetch: fetchCategories } = useCategoryStore()
+  const currency = useCurrencyFormatter()
   const [bill, setBill] = useState<Bill | null>(null)
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [loading, setLoading] = useState(true)
@@ -51,7 +54,7 @@ function BillDetailPage(): React.JSX.Element {
       setBill(billData)
       setTransactions(txData)
     } catch (err) {
-      message.error(err instanceof Error ? err.message : '账单不存在')
+      message.error(err instanceof Error ? err.message : t('bills.notFound'))
       navigate('/bills')
     } finally {
       setLoading(false)
@@ -103,7 +106,7 @@ function BillDetailPage(): React.JSX.Element {
       await loadData()
       closeForm()
     } catch (err) {
-      message.error(err instanceof Error ? err.message : '保存失败')
+      message.error(err instanceof Error ? err.message : t('bills.saveFailed'))
     } finally {
       setSubmitting(false)
     }
@@ -114,7 +117,7 @@ function BillDetailPage(): React.JSX.Element {
       await window.api.transactions.delete(transaction.id)
       await loadData()
     } catch (err) {
-      message.error(err instanceof Error ? err.message : '删除失败')
+      message.error(err instanceof Error ? err.message : t('bills.deleteFailed'))
     }
   }
 
@@ -132,26 +135,23 @@ function BillDetailPage(): React.JSX.Element {
           </Typography.Paragraph>
         </div>
         <Button icon={<FileTextOutlined />} onClick={() => navigate(`/bills/${id}/report`)}>
-          查看报告
+          {t('bills.detail.viewReport')}
         </Button>
       </div>
       <Space size={48} style={{ marginBottom: 24 }}>
         <Statistic
-          title="收入"
-          value={toDisplayAmount(totalIncome)}
-          precision={2}
+          title={t('bills.detail.income')}
+          value={currency.format(totalIncome)}
           valueStyle={{ color: '#3f8600' }}
         />
         <Statistic
-          title="支出"
-          value={toDisplayAmount(totalExpense)}
-          precision={2}
+          title={t('bills.detail.expense')}
+          value={currency.format(totalExpense)}
           valueStyle={{ color: '#cf1322' }}
         />
         <Statistic
-          title="盈余"
-          value={toDisplayAmount(balance)}
-          precision={2}
+          title={t('bills.detail.balance')}
+          value={currency.format(balance)}
           valueStyle={{ color: balance >= 0 ? '#3f8600' : '#cf1322' }}
         />
       </Space>

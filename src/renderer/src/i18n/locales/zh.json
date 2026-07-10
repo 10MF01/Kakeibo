@@ -1,0 +1,151 @@
+{
+  "app": { "title": "Kakeibo" },
+  "weekday": {
+    "sun": "周日",
+    "mon": "周一",
+    "tue": "周二",
+    "wed": "周三",
+    "thu": "周四",
+    "fri": "周五",
+    "sat": "周六"
+  },
+  "nav": {
+    "dashboard": "首页",
+    "bills": "账单",
+    "categories": "分类管理",
+    "settings": "设置"
+  },
+  "dashboard": {
+    "title": "首页",
+    "currentBill": "当前账单：{{name}}",
+    "noActiveBill": "当前没有进行中的账单",
+    "createBill": "去创建账单",
+    "goToBill": "去记账",
+    "periodIncome": "本期收入",
+    "periodExpense": "本期支出",
+    "periodBalance": "本期盈余",
+    "recentTransactions": "最近记录",
+    "noTransactions": "还没有记录，去记一笔吧"
+  },
+  "bills": {
+    "title": "账单",
+    "subtitle": "账单周期由你自由指定，例如 7/15 ~ 8/15，系统会按天为你生成录入表单。",
+    "create": "新建账单",
+    "empty": "还没有账单，先创建一个吧",
+    "active": "进行中",
+    "createFailed": "创建账单失败",
+    "notFound": "账单不存在",
+    "saveFailed": "保存失败",
+    "deleteFailed": "删除失败",
+    "form": {
+      "title": "新建账单",
+      "period": "账单周期",
+      "periodRequired": "请选择账单起止日期",
+      "name": "账单名称（可选）",
+      "namePlaceholder": "默认使用日期范围作为名称"
+    },
+    "detail": {
+      "viewReport": "查看报告",
+      "income": "收入",
+      "expense": "支出",
+      "balance": "盈余",
+      "noRecord": "这一天还没有记录",
+      "add": "添加",
+      "deleteConfirm": "删除这条记录？"
+    }
+  },
+  "transaction": {
+    "form": {
+      "title": "记一笔 · {{date}}",
+      "type": "类型",
+      "expense": "支出",
+      "income": "收入",
+      "primaryCategory": "一级分类",
+      "primaryRequired": "请选择一级分类",
+      "subcategory": "二级分类（选填，仅作备注）",
+      "amount": "金额",
+      "amountRequired": "请输入金额",
+      "note": "备注",
+      "notePlaceholder": "选填",
+      "selectCategory": "选择分类",
+      "selectSubcategory": "选择二级分类"
+    }
+  },
+  "categories": {
+    "title": "分类管理",
+    "subtitle": "一级分类用于记账统计，二级分类仅作备注，不参与统计。",
+    "expense": "支出分类",
+    "income": "收入分类",
+    "createPrimary": "新建一级分类",
+    "empty": "暂无分类",
+    "addSubcategory": "添加二级分类",
+    "deleteConfirmTitle": "删除该分类？",
+    "deleteConfirmDesc": "若存在关联的流水或二级分类将无法删除",
+    "editTitle": "编辑分类",
+    "form": {
+      "name": "名称",
+      "nameRequired": "请输入分类名称",
+      "namePlaceholder": "例如：饮食",
+      "color": "颜色标签",
+      "subcategoryNamePlaceholder": "二级分类名称"
+    },
+    "errors": {
+      "CATEGORY_DUPLICATE_NAME": "同级下已存在同名分类",
+      "CATEGORY_HAS_SUBCATEGORIES": "请先删除该分类下的二级分类",
+      "CATEGORY_IN_USE": "该分类已被流水记录引用，无法删除",
+      "CATEGORY_NOT_FOUND": "分类不存在，请刷新后重试",
+      "default": "操作失败"
+    },
+    "seed": {
+      "food": "饮食",
+      "transport": "交通",
+      "housing": "住房",
+      "utilities": "水电燃气",
+      "entertainment": "娱乐",
+      "shopping": "购物",
+      "medical": "医疗",
+      "education": "教育",
+      "communication": "通讯",
+      "otherExpense": "其他支出",
+      "salary": "工资",
+      "bonus": "奖金",
+      "sideIncome": "兼职",
+      "investment": "投资收益",
+      "otherIncome": "其他收入"
+    }
+  },
+  "report": {
+    "title": "{{name}} · 消费报告",
+    "exportPdf": "导出 PDF",
+    "exportExcel": "导出 Excel",
+    "totalIncome": "总收入",
+    "totalExpense": "总支出",
+    "balance": "盈余",
+    "expensePie": "支出分类占比",
+    "expenseDetail": "支出明细",
+    "incomePie": "收入分类占比",
+    "incomeDetail": "收入明细",
+    "other": "其他",
+    "noData": "暂无数据",
+    "exportSuccess": "已导出到 {{path}}",
+    "exportPdfFailed": "导出 PDF 失败",
+    "exportExcelFailed": "导出 Excel 失败",
+    "loadFailed": "加载报告失败",
+    "generatedAt": "生成时间",
+    "period": "账单周期",
+    "table": {
+      "category": "分类",
+      "amount": "金额",
+      "percentage": "占比",
+      "count": "笔数"
+    }
+  },
+  "settings": {
+    "title": "设置",
+    "language": "语言",
+    "languageDesc": "切换语言会同时切换金额显示的货币符号"
+  },
+  "calculator": {
+    "title": "计算器"
+  }
+}

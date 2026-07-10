@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { Button, Card, Empty, Input, Popconfirm, Space, Tag, Typography } from 'antd'
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons'
+import { useTranslation } from 'react-i18next'
 import type { Category } from '@shared/types/category'
+import { categoryDisplayName } from '@renderer/utils/categoryName'
 
 interface CategoryTreeProps {
   categories: Category[]
@@ -18,12 +20,13 @@ function CategoryTree({
   onAddSubcategory,
   onDeleteSubcategory
 }: CategoryTreeProps): React.JSX.Element {
+  const { t } = useTranslation()
   const primaries = categories.filter((c) => c.parentId === null)
   const [addingFor, setAddingFor] = useState<number | null>(null)
   const [draftName, setDraftName] = useState('')
 
   if (primaries.length === 0) {
-    return <Empty description="暂无分类" />
+    return <Empty description={t('categories.empty')} />
   }
 
   const commitDraft = (primary: Category): void => {
@@ -50,7 +53,7 @@ function CategoryTree({
                     background: primary.color ?? '#999'
                   }}
                 />
-                <Typography.Text strong>{primary.name}</Typography.Text>
+                <Typography.Text strong>{categoryDisplayName(primary, t)}</Typography.Text>
               </Space>
               <Space size={4}>
                 <Button
@@ -60,8 +63,8 @@ function CategoryTree({
                   onClick={() => onEditPrimary(primary)}
                 />
                 <Popconfirm
-                  title="删除该分类？"
-                  description="若存在关联的流水或二级分类将无法删除"
+                  title={t('categories.deleteConfirmTitle')}
+                  description={t('categories.deleteConfirmDesc')}
                   onConfirm={() => onDeletePrimary(primary)}
                 >
                   <Button type="text" size="small" danger icon={<DeleteOutlined />} />
@@ -79,7 +82,7 @@ function CategoryTree({
                       onDeleteSubcategory(sub)
                     }}
                   >
-                    {sub.name}
+                    {categoryDisplayName(sub, t)}
                   </Tag>
                 ))}
                 {addingFor === primary.id ? (
@@ -88,7 +91,7 @@ function CategoryTree({
                     autoFocus
                     style={{ width: 120 }}
                     value={draftName}
-                    placeholder="二级分类名称"
+                    placeholder={t('categories.form.subcategoryNamePlaceholder')}
                     onChange={(e) => setDraftName(e.target.value)}
                     onPressEnter={() => commitDraft(primary)}
                     onBlur={() => commitDraft(primary)}
@@ -98,7 +101,7 @@ function CategoryTree({
                     onClick={() => setAddingFor(primary.id)}
                     style={{ cursor: 'pointer', borderStyle: 'dashed' }}
                   >
-                    <PlusOutlined /> 添加二级分类
+                    <PlusOutlined /> {t('categories.addSubcategory')}
                   </Tag>
                 )}
               </Space>

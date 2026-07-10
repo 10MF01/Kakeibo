@@ -2,12 +2,16 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { Button, Card, Col, Row, Space, Spin, Statistic, Typography, message } from 'antd'
 import { FileExcelOutlined, FilePdfOutlined } from '@ant-design/icons'
+import { useTranslation } from 'react-i18next'
 import CategoryPieChart from '@renderer/components/report/CategoryPieChart'
 import CategoryBreakdownTable from '@renderer/components/report/CategoryBreakdownTable'
-import { toDisplayAmount } from '@shared/amount'
+import { useCurrencyFormatter } from '@renderer/hooks/useCurrencyFormatter'
 import type { ReportSummary } from '@shared/types/report'
+import type { AppLanguage } from '@shared/types/settings'
 
 function ReportPage(): React.JSX.Element {
+  const { t, i18n } = useTranslation()
+  const currency = useCurrencyFormatter()
   const { billId } = useParams<{ billId: string }>()
   const id = Number(billId)
   const [summary, setSummary] = useState<ReportSummary | null>(null)
@@ -20,17 +24,17 @@ function ReportPage(): React.JSX.Element {
     window.api.reports
       .getSummary(id)
       .then(setSummary)
-      .catch((err: Error) => message.error(err.message || '加载报告失败'))
+      .catch((err: Error) => message.error(err.message || t('report.loadFailed')))
       .finally(() => setLoading(false))
-  }, [id])
+  }, [id, t])
 
   const handleExportPdf = async (): Promise<void> => {
     setExportingPdf(true)
     try {
-      const result = await window.api.reports.exportPdf(id)
-      if (result) message.success(`已导出到 ${result.filePath}`)
+      const result = await window.api.reports.exportPdf(id, i18n.language as AppLanguage)
+      if (result) message.success(t('report.exportSuccess', { path: result.filePath }))
     } catch (err) {
-      message.error(err instanceof Error ? err.message : '导出 PDF 失败')
+      message.error(err instanceof Error ? err.message : t('report.exportPdfFailed'))
     } finally {
       setExportingPdf(false)
     }
@@ -39,10 +43,10 @@ function ReportPage(): React.JSX.Element {
   const handleExportExcel = async (): Promise<void> => {
     setExportingExcel(true)
     try {
-      const result = await window.api.reports.exportExcel(id)
-      if (result) message.success(`已导出到 ${result.filePath}`)
+      const result = await window.api.reports.exportExcel(id, i18n.language as AppLanguage)
+      if (result) message.success(t('report.exportSuccess', { path: result.filePath }))
     } catch (err) {
-      message.error(err instanceof Error ? err.message : '导出 Excel 失败')
+      message.error(err instanceof Error ? err.message : t('report.exportExcelFailed'))
     } finally {
       setExportingExcel(false)
     }
@@ -56,17 +60,17 @@ function ReportPage(): React.JSX.Element {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
-          <Typography.Title level={3}>{summary.billName} · 消费报告</Typography.Title>
+          <Typography.Title level={3}>{t('report.title', { name: summary.billName })}</Typography.Title>
           <Typography.Paragraph type="secondary">
             {summary.startDate} ~ {summary.endDate}
           </Typography.Paragraph>
         </div>
         <Space>
           <Button icon={<FilePdfOutlined />} loading={exportingPdf} onClick={handleExportPdf}>
-            导出 PDF
+            {t('report.exportPdf')}
           </Button>
           <Button icon={<FileExcelOutlined />} loading={exportingExcel} onClick={handleExportExcel}>
-            导出 Excel
+            {t('report.exportExcel')}
           </Button>
         </Space>
       </div>
@@ -75,9 +79,8 @@ function ReportPage(): React.JSX.Element {
         <Col span={8}>
           <Card>
             <Statistic
-              title="总收入"
-              value={toDisplayAmount(summary.totalIncome)}
-              precision={2}
+              title={t('report.totalIncome')}
+              value={currency.format(summary.totalIncome)}
               valueStyle={{ color: '#3f8600' }}
             />
           </Card>
@@ -85,9 +88,8 @@ function ReportPage(): React.JSX.Element {
         <Col span={8}>
           <Card>
             <Statistic
-              title="总支出"
-              value={toDisplayAmount(summary.totalExpense)}
-              precision={2}
+              title={t('report.totalExpense')}
+              value={currency.format(summary.totalExpense)}
               valueStyle={{ color: '#cf1322' }}
             />
           </Card>
@@ -95,9 +97,8 @@ function ReportPage(): React.JSX.Element {
         <Col span={8}>
           <Card>
             <Statistic
-              title="盈余"
-              value={toDisplayAmount(summary.balance)}
-              precision={2}
+              title={t('report.balance')}
+              value={currency.format(summary.balance)}
               valueStyle={{ color: summary.balance >= 0 ? '#3f8600' : '#cf1322' }}
             />
           </Card>
@@ -106,12 +107,12 @@ function ReportPage(): React.JSX.Element {
 
       <Row gutter={24}>
         <Col span={12}>
-          <Card title="支出分类占比">
+          <Card title={t('report.expensePie')}>
             <CategoryPieChart data={summary.expenseByCategory} />
           </Card>
         </Col>
         <Col span={12}>
-          <Card title="支出明细">
+          <Card title={t('report.expenseDetail')}>
             <CategoryBreakdownTable data={summary.expenseByCategory} />
           </Card>
         </Col>
@@ -120,12 +121,12 @@ function ReportPage(): React.JSX.Element {
       {summary.incomeByCategory.length > 0 && (
         <Row gutter={24} style={{ marginTop: 24 }}>
           <Col span={12}>
-            <Card title="收入分类占比">
+            <Card title={t('report.incomePie')}>
               <CategoryPieChart data={summary.incomeByCategory} />
             </Card>
           </Col>
           <Col span={12}>
-            <Card title="收入明细">
+            <Card title={t('report.incomeDetail')}>
               <CategoryBreakdownTable data={summary.incomeByCategory} />
             </Card>
           </Col>

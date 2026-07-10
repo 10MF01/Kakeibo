@@ -1,22 +1,27 @@
 import { useEffect, useState } from 'react'
 import { Button, Card, Col, Row, Typography, message } from 'antd'
 import { PlusOutlined } from '@ant-design/icons'
+import { useTranslation } from 'react-i18next'
 import CategoryTree from '@renderer/components/category/CategoryTree'
 import CategoryForm, { type CategoryFormValues } from '@renderer/components/category/CategoryForm'
 import { useCategoryStore } from '@renderer/store/useCategoryStore'
+import { categoryDisplayName } from '@renderer/utils/categoryName'
 import type { Category, CategoryType } from '@shared/types/category'
+import type { TFunction } from 'i18next'
 
-const ERROR_MESSAGES: Record<string, string> = {
-  CATEGORY_DUPLICATE_NAME: '同级下已存在同名分类',
-  CATEGORY_HAS_SUBCATEGORIES: '请先删除该分类下的二级分类',
-  CATEGORY_IN_USE: '该分类已被流水记录引用，无法删除',
-  CATEGORY_NOT_FOUND: '分类不存在，请刷新后重试'
-}
+const ERROR_CODES = [
+  'CATEGORY_DUPLICATE_NAME',
+  'CATEGORY_HAS_SUBCATEGORIES',
+  'CATEGORY_IN_USE',
+  'CATEGORY_NOT_FOUND'
+] as const
 
-function resolveErrorMessage(err: unknown): string {
+function resolveErrorMessage(err: unknown, t: TFunction): string {
   const code = (err as { code?: string } | undefined)?.code
-  if (code && ERROR_MESSAGES[code]) return ERROR_MESSAGES[code]
-  return err instanceof Error ? err.message : '操作失败'
+  if (code && (ERROR_CODES as readonly string[]).includes(code)) {
+    return t(`categories.errors.${code}`)
+  }
+  return err instanceof Error ? err.message : t('categories.errors.default')
 }
 
 interface FormState {
@@ -27,6 +32,7 @@ interface FormState {
 }
 
 function CategoriesPage(): React.JSX.Element {
+  const { t } = useTranslation()
   const { categories, fetch, refresh } = useCategoryStore()
   const [submitting, setSubmitting] = useState(false)
   const [formState, setFormState] = useState<FormState>({
@@ -68,7 +74,7 @@ function CategoriesPage(): React.JSX.Element {
       await refresh()
       closeForm()
     } catch (err) {
-      message.error(resolveErrorMessage(err))
+      message.error(resolveErrorMessage(err, t))
     } finally {
       setSubmitting(false)
     }
@@ -79,7 +85,7 @@ function CategoriesPage(): React.JSX.Element {
       await window.api.categories.delete(category.id)
       await refresh()
     } catch (err) {
-      message.error(resolveErrorMessage(err))
+      message.error(resolveErrorMessage(err, t))
     }
   }
 
@@ -88,7 +94,7 @@ function CategoriesPage(): React.JSX.Element {
       await window.api.categories.create({ parentId: parent.id, type: parent.type, name })
       await refresh()
     } catch (err) {
-      message.error(resolveErrorMessage(err))
+      message.error(resolveErrorMessage(err, t))
     }
   }
 
@@ -97,27 +103,25 @@ function CategoriesPage(): React.JSX.Element {
       await window.api.categories.delete(category.id)
       await refresh()
     } catch (err) {
-      message.error(resolveErrorMessage(err))
+      message.error(resolveErrorMessage(err, t))
     }
   }
 
   return (
     <div>
-      <Typography.Title level={3}>分类管理</Typography.Title>
-      <Typography.Paragraph type="secondary">
-        一级分类用于记账统计，二级分类仅作备注，不参与统计。
-      </Typography.Paragraph>
+      <Typography.Title level={3}>{t('categories.title')}</Typography.Title>
+      <Typography.Paragraph type="secondary">{t('categories.subtitle')}</Typography.Paragraph>
       <Row gutter={24}>
         <Col span={12}>
           <Card
-            title="支出分类"
+            title={t('categories.expense')}
             extra={
               <Button
                 type="link"
                 icon={<PlusOutlined />}
                 onClick={() => openCreatePrimary('expense')}
               >
-                新建一级分类
+                {t('categories.createPrimary')}
               </Button>
             }
           >
@@ -132,14 +136,14 @@ function CategoriesPage(): React.JSX.Element {
         </Col>
         <Col span={12}>
           <Card
-            title="收入分类"
+            title={t('categories.income')}
             extra={
               <Button
                 type="link"
                 icon={<PlusOutlined />}
                 onClick={() => openCreatePrimary('income')}
               >
-                新建一级分类
+                {t('categories.createPrimary')}
               </Button>
             }
           >
@@ -155,10 +159,12 @@ function CategoriesPage(): React.JSX.Element {
       </Row>
       <CategoryForm
         open={formState.open}
-        title={formState.mode === 'create-primary' ? '新建一级分类' : '编辑分类'}
+        title={
+          formState.mode === 'create-primary' ? t('categories.createPrimary') : t('categories.editTitle')
+        }
         initialValues={
           formState.category
-            ? { name: formState.category.name, color: formState.category.color }
+            ? { name: categoryDisplayName(formState.category, t), color: formState.category.color }
             : undefined
         }
         confirmLoading={submitting}

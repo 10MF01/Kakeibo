@@ -1,16 +1,20 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Button, Card, Col, Empty, List, Row, Space, Spin, Statistic, Tag, Typography } from 'antd'
 import { PlusOutlined } from '@ant-design/icons'
 import { useBillStore } from '@renderer/store/useBillStore'
 import { useCategoryStore } from '@renderer/store/useCategoryStore'
-import { toDisplayAmount } from '@shared/amount'
+import { useCurrencyFormatter } from '@renderer/hooks/useCurrencyFormatter'
+import { categoryDisplayName } from '@renderer/utils/categoryName'
 import type { Transaction } from '@shared/types/transaction'
 
 function DashboardPage(): React.JSX.Element {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const { activeBill, loaded, fetch } = useBillStore()
   const { categories, fetch: fetchCategories } = useCategoryStore()
+  const currency = useCurrencyFormatter()
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [loadingTx, setLoadingTx] = useState(false)
 
@@ -56,10 +60,10 @@ function DashboardPage(): React.JSX.Element {
   if (!activeBill) {
     return (
       <div>
-        <Typography.Title level={3}>首页</Typography.Title>
-        <Empty description="当前没有进行中的账单">
+        <Typography.Title level={3}>{t('dashboard.title')}</Typography.Title>
+        <Empty description={t('dashboard.noActiveBill')}>
           <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/bills')}>
-            去创建账单
+            {t('dashboard.createBill')}
           </Button>
         </Empty>
       </div>
@@ -70,22 +74,21 @@ function DashboardPage(): React.JSX.Element {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
-          <Typography.Title level={3}>首页</Typography.Title>
+          <Typography.Title level={3}>{t('dashboard.title')}</Typography.Title>
           <Typography.Paragraph type="secondary">
-            当前账单：{activeBill.name}
+            {t('dashboard.currentBill', { name: activeBill.name })}
             {activeBill.name !== `${activeBill.startDate} ~ ${activeBill.endDate}` &&
               `（${activeBill.startDate} ~ ${activeBill.endDate}）`}
           </Typography.Paragraph>
         </div>
-        <Button onClick={() => navigate(`/bills/${activeBill.id}`)}>去记账</Button>
+        <Button onClick={() => navigate(`/bills/${activeBill.id}`)}>{t('dashboard.goToBill')}</Button>
       </div>
       <Row gutter={24} style={{ marginBottom: 24 }}>
         <Col span={8}>
           <Card>
             <Statistic
-              title="本期收入"
-              value={toDisplayAmount(totalIncome)}
-              precision={2}
+              title={t('dashboard.periodIncome')}
+              value={currency.format(totalIncome)}
               valueStyle={{ color: '#3f8600' }}
             />
           </Card>
@@ -93,9 +96,8 @@ function DashboardPage(): React.JSX.Element {
         <Col span={8}>
           <Card>
             <Statistic
-              title="本期支出"
-              value={toDisplayAmount(totalExpense)}
-              precision={2}
+              title={t('dashboard.periodExpense')}
+              value={currency.format(totalExpense)}
               valueStyle={{ color: '#cf1322' }}
             />
           </Card>
@@ -103,34 +105,33 @@ function DashboardPage(): React.JSX.Element {
         <Col span={8}>
           <Card>
             <Statistic
-              title="本期盈余"
-              value={toDisplayAmount(balance)}
-              precision={2}
+              title={t('dashboard.periodBalance')}
+              value={currency.format(balance)}
               valueStyle={{ color: balance >= 0 ? '#3f8600' : '#cf1322' }}
             />
           </Card>
         </Col>
       </Row>
-      <Card title="最近记录" loading={loadingTx}>
+      <Card title={t('dashboard.recentTransactions')} loading={loadingTx}>
         {recentTransactions.length === 0 ? (
-          <Empty description="还没有记录，去记一笔吧" />
+          <Empty description={t('dashboard.noTransactions')} />
         ) : (
           <List
             dataSource={recentTransactions}
-            renderItem={(t) => {
-              const category = categoryMap.get(t.categoryId)
-              const subcategory = t.subcategoryId ? categoryMap.get(t.subcategoryId) : null
+            renderItem={(t2) => {
+              const category = categoryMap.get(t2.categoryId)
+              const subcategory = t2.subcategoryId ? categoryMap.get(t2.subcategoryId) : null
               return (
                 <List.Item>
                   <Space>
-                    <Typography.Text type="secondary">{t.date}</Typography.Text>
-                    <Tag color={t.type === 'income' ? 'green' : 'volcano'}>
-                      {t.type === 'income' ? '收入' : '支出'}
+                    <Typography.Text type="secondary">{t2.date}</Typography.Text>
+                    <Tag color={t2.type === 'income' ? 'green' : 'volcano'}>
+                      {t2.type === 'income' ? t('transaction.form.income') : t('transaction.form.expense')}
                     </Tag>
-                    <span>{category?.name ?? '未知分类'}</span>
-                    {subcategory && <Tag>{subcategory.name}</Tag>}
+                    <span>{category ? categoryDisplayName(category, t) : '-'}</span>
+                    {subcategory && <Tag>{categoryDisplayName(subcategory, t)}</Tag>}
                   </Space>
-                  <span>{toDisplayAmount(t.amount).toFixed(2)}</span>
+                  <span>{currency.format(t2.amount)}</span>
                 </List.Item>
               )
             }}

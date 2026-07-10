@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { ColorPicker, Form, Input, Modal } from 'antd'
+import { useTranslation } from 'react-i18next'
 
 export interface CategoryFormValues {
   name: string
@@ -25,6 +26,7 @@ function CategoryForm({
   onCancel,
   onSubmit
 }: CategoryFormProps): React.JSX.Element {
+  const { t } = useTranslation()
   const [form] = Form.useForm<{ name: string }>()
   const [color, setColor] = useState<string>(DEFAULT_COLOR)
 
@@ -52,12 +54,12 @@ function CategoryForm({
       <Form form={form} layout="vertical">
         <Form.Item
           name="name"
-          label="名称"
-          rules={[{ required: true, message: '请输入分类名称' }]}
+          label={t('categories.form.name')}
+          rules={[{ required: true, message: t('categories.form.nameRequired') }]}
         >
-          <Input placeholder="例如：饮食" maxLength={20} />
+          <Input placeholder={t('categories.form.namePlaceholder')} maxLength={20} />
         </Form.Item>
-        <Form.Item label="颜色标签">
+        <Form.Item label={t('categories.form.color')}>
           <ColorPicker value={color} onChangeComplete={(c) => setColor(c.toHexString())} />
         </Form.Item>
       </Form>
