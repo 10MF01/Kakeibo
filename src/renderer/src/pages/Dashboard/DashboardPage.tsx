@@ -4,7 +4,7 @@ import { Button, Card, Col, Empty, List, Row, Space, Spin, Statistic, Tag, Typog
 import { PlusOutlined } from '@ant-design/icons'
 import { useBillStore } from '@renderer/store/useBillStore'
 import { useCategoryStore } from '@renderer/store/useCategoryStore'
-import { toDisplayAmount } from '@renderer/utils/amount'
+import { toDisplayAmount } from '@shared/amount'
 import type { Transaction } from '@shared/types/transaction'
 
 function DashboardPage(): React.JSX.Element {

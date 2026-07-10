@@ -3,7 +3,7 @@ import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
 import type { Category } from '@shared/types/category'
 import type { Transaction } from '@shared/types/transaction'
-import { toDisplayAmount } from '@renderer/utils/amount'
+import { toDisplayAmount } from '@shared/amount'
 
 interface DayEntryCardProps {
   date: string

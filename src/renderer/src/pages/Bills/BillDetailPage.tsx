@@ -1,13 +1,14 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { Space, Spin, Statistic, Typography, message } from 'antd'
+import { Button, Space, Spin, Statistic, Typography, message } from 'antd'
+import { FileTextOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
 import DayEntryCard from '@renderer/components/bill/DayEntryCard'
 import TransactionForm, {
   type TransactionFormValues
 } from '@renderer/components/bill/TransactionForm'
 import { useCategoryStore } from '@renderer/store/useCategoryStore'
-import { toDisplayAmount } from '@renderer/utils/amount'
+import { toDisplayAmount } from '@shared/amount'
 import type { Bill } from '@shared/types/bill'
 import type { Transaction } from '@shared/types/transaction'
 
@@ -123,10 +124,17 @@ function BillDetailPage(): React.JSX.Element {
 
   return (
     <div>
-      <Typography.Title level={3}>{bill.name}</Typography.Title>
-      <Typography.Paragraph type="secondary">
-        {bill.startDate} ~ {bill.endDate}
-      </Typography.Paragraph>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <div>
+          <Typography.Title level={3}>{bill.name}</Typography.Title>
+          <Typography.Paragraph type="secondary">
+            {bill.startDate} ~ {bill.endDate}
+          </Typography.Paragraph>
+        </div>
+        <Button icon={<FileTextOutlined />} onClick={() => navigate(`/bills/${id}/report`)}>
+          查看报告
+        </Button>
+      </div>
       <Space size={48} style={{ marginBottom: 24 }}>
         <Statistic
           title="收入"

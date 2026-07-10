@@ -3,12 +3,14 @@ import { categoriesApi } from './api/categories'
 import { billsApi } from './api/bills'
 import { transactionsApi } from './api/transactions'
 import { settingsApi } from './api/settings'
+import { reportsApi } from './api/reports'
 
 const api = {
   categories: categoriesApi,
   bills: billsApi,
   transactions: transactionsApi,
-  settings: settingsApi
+  settings: settingsApi,
+  reports: reportsApi
 }
 
 export type Api = typeof api

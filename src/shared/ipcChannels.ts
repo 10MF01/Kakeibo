@@ -23,5 +23,13 @@ export const IPC = {
   settings: {
     get: 'settings:get',
     update: 'settings:update'
+  },
+  reports: {
+    getSummary: 'reports:getSummary',
+    exportPdf: 'reports:exportPdf',
+    exportExcel: 'reports:exportExcel'
+  },
+  print: {
+    ready: 'print:ready'
   }
 } as const
