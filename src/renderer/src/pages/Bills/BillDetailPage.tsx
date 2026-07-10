@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { Button, Space, Spin, Statistic, Typography, message } from 'antd'
+import { Button, Space, Spin, Statistic, Typography, message, theme } from 'antd'
 import { FileTextOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import dayjs from 'dayjs'
@@ -32,6 +32,7 @@ interface FormState {
 
 function BillDetailPage(): React.JSX.Element {
   const { t } = useTranslation()
+  const { token } = theme.useToken()
   const { billId } = useParams<{ billId: string }>()
   const navigate = useNavigate()
   const { categories, fetch: fetchCategories } = useCategoryStore()
@@ -142,17 +143,17 @@ function BillDetailPage(): React.JSX.Element {
         <Statistic
           title={t('bills.detail.income')}
           value={currency.format(totalIncome)}
-          valueStyle={{ color: '#3f8600' }}
+          valueStyle={{ color: token.colorSuccess }}
         />
         <Statistic
           title={t('bills.detail.expense')}
           value={currency.format(totalExpense)}
-          valueStyle={{ color: '#cf1322' }}
+          valueStyle={{ color: token.colorError }}
         />
         <Statistic
           title={t('bills.detail.balance')}
           value={currency.format(balance)}
-          valueStyle={{ color: balance >= 0 ? '#3f8600' : '#cf1322' }}
+          valueStyle={{ color: balance >= 0 ? token.colorSuccess : token.colorError }}
         />
       </Space>
       {dates.map((date) => (

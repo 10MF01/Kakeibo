@@ -1,7 +1,11 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Button } from 'antd'
 
 type Operator = '+' | '-' | '×' | '÷'
+
+interface CalculatorPopoverProps {
+  open: boolean
+}
 
 function calculate(a: number, b: number, op: Operator): number {
   switch (op) {
@@ -21,7 +25,14 @@ function formatResult(value: number): string {
   return String(Math.round(value * 1e8) / 1e8)
 }
 
-function CalculatorPopover(): React.JSX.Element {
+const KEY_OPERATORS: Record<string, Operator> = {
+  '+': '+',
+  '-': '-',
+  '*': '×',
+  '/': '÷'
+}
+
+function CalculatorPopover({ open }: CalculatorPopoverProps): React.JSX.Element {
   const [display, setDisplay] = useState('0')
   const [previousValue, setPreviousValue] = useState<number | null>(null)
   const [pendingOperator, setPendingOperator] = useState<Operator | null>(null)
@@ -82,6 +93,40 @@ function CalculatorPopover(): React.JSX.Element {
       setWaitingForOperand(true)
     }
   }
+
+  useEffect(() => {
+    if (!open) return
+
+    const handleKeyDown = (e: KeyboardEvent): void => {
+      const activeTag = document.activeElement?.tagName
+      if (activeTag === 'INPUT' || activeTag === 'TEXTAREA') return
+
+      if (e.key >= '0' && e.key <= '9') {
+        e.preventDefault()
+        inputDigit(e.key)
+      } else if (e.key === '.') {
+        e.preventDefault()
+        inputDecimal()
+      } else if (e.key in KEY_OPERATORS) {
+        e.preventDefault()
+        applyOperator(KEY_OPERATORS[e.key])
+      } else if (e.key === 'Enter' || e.key === '=') {
+        e.preventDefault()
+        handleEquals()
+      } else if (e.key === 'Backspace') {
+        e.preventDefault()
+        backspace()
+      } else if (e.key === 'Escape' || e.key === 'c' || e.key === 'C') {
+        e.preventDefault()
+        clear()
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+    // Re-bind every render so the closures above see current display/operator state.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, display, previousValue, pendingOperator, waitingForOperand])
 
   const buttons: { label: string; onClick: () => void; primary?: boolean; span?: number }[] = [
     { label: 'C', onClick: clear },

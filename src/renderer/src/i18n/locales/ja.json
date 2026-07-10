@@ -32,11 +32,17 @@
     "subtitle": "期間は自由に設定できます（例：7/15〜8/15）。期間内の日ごとに入力フォームが生成されます。",
     "create": "家計簿を新規作成",
     "empty": "まだ家計簿がありません。作成しましょう",
-    "active": "進行中",
+    "active": "現在の家計簿",
     "createFailed": "家計簿の作成に失敗しました",
     "notFound": "家計簿が見つかりません",
     "saveFailed": "保存に失敗しました",
     "deleteFailed": "削除に失敗しました",
+    "deleteSuccess": "家計簿を削除しました",
+    "activateFailed": "現在の家計簿への設定に失敗しました",
+    "menuActivate": "現在の家計簿に設定",
+    "menuDelete": "家計簿を削除",
+    "deleteConfirmTitle": "この家計簿を削除しますか？",
+    "deleteConfirmDesc": "この家計簿内のすべての記録も削除されます。元に戻せません",
     "form": {
       "title": "家計簿を新規作成",
       "period": "期間",
@@ -62,36 +68,31 @@
       "income": "収入",
       "primaryCategory": "カテゴリ",
       "primaryRequired": "カテゴリを選択してください",
-      "subcategory": "サブカテゴリ（任意・メモ用）",
       "amount": "金額",
       "amountRequired": "金額を入力してください",
       "note": "メモ",
       "notePlaceholder": "任意",
-      "selectCategory": "カテゴリを選択",
-      "selectSubcategory": "サブカテゴリを選択"
+      "selectCategory": "カテゴリを選択"
     }
   },
   "categories": {
     "title": "カテゴリ管理",
-    "subtitle": "カテゴリは集計に使用され、サブカテゴリはメモ用で集計には含まれません。",
+    "subtitle": "カテゴリは集計に使用されます。自由に追加・編集・削除できます。特別なメモが必要な場合は記録のメモ欄をご利用ください。",
     "expense": "支出カテゴリ",
     "income": "収入カテゴリ",
     "createPrimary": "カテゴリを新規作成",
     "empty": "カテゴリがありません",
-    "addSubcategory": "サブカテゴリを追加",
     "deleteConfirmTitle": "このカテゴリを削除しますか？",
-    "deleteConfirmDesc": "紐づく記録やサブカテゴリがある場合は削除できません",
+    "deleteConfirmDesc": "紐づく記録がある場合は削除できません",
     "editTitle": "カテゴリを編集",
     "form": {
       "name": "名称",
       "nameRequired": "カテゴリ名を入力してください",
       "namePlaceholder": "例：食費",
-      "color": "カラー",
-      "subcategoryNamePlaceholder": "サブカテゴリ名"
+      "color": "カラー"
     },
     "errors": {
-      "CATEGORY_DUPLICATE_NAME": "同じ階層に同名のカテゴリが既に存在します",
-      "CATEGORY_HAS_SUBCATEGORIES": "先にサブカテゴリを削除してください",
+      "CATEGORY_DUPLICATE_NAME": "同じ種別に同名のカテゴリが既に存在します",
       "CATEGORY_IN_USE": "このカテゴリは記録で使用されているため削除できません",
       "CATEGORY_NOT_FOUND": "カテゴリが見つかりません。再読み込みしてください",
       "default": "操作に失敗しました"

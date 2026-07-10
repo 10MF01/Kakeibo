@@ -2,7 +2,6 @@ export type CategoryType = 'income' | 'expense'
 
 export interface Category {
   id: number
-  parentId: number | null
   type: CategoryType
   name: string
   nameKey: string | null
@@ -15,7 +14,6 @@ export interface Category {
 }
 
 export interface CategoryCreateInput {
-  parentId?: number | null
   type: CategoryType
   name: string
   icon?: string | null

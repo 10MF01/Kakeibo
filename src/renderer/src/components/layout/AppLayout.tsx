@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { Layout, Menu } from 'antd'
+import { Layout, Menu, theme } from 'antd'
 import type { MenuProps } from 'antd'
 import { Link, Outlet, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -23,6 +23,7 @@ function AppLayout(): React.JSX.Element {
   const { t } = useTranslation()
   const location = useLocation()
   const selectedKey = resolveSelectedKey(location.pathname)
+  const { token } = theme.useToken()
 
   const menuItems: Required<MenuProps>['items'] = useMemo(
     () => [
@@ -47,9 +48,11 @@ function AppLayout(): React.JSX.Element {
   )
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
+    <Layout style={{ height: '100vh', overflow: 'hidden' }}>
       <Sider theme="light" width={200}>
-        <div style={{ padding: '20px 24px', fontSize: 18, fontWeight: 600, color: '#2f6f4f' }}>
+        <div
+          style={{ padding: '20px 24px', fontSize: 18, fontWeight: 600, color: token.colorPrimary }}
+        >
           {t('app.title')}
         </div>
         <Menu
@@ -60,7 +63,7 @@ function AppLayout(): React.JSX.Element {
         />
       </Sider>
       <Layout>
-        <Content style={{ padding: 24 }}>
+        <Content className="app-content-scroll" style={{ padding: 24, height: '100%', overflowY: 'auto' }}>
           <Outlet />
         </Content>
       </Layout>

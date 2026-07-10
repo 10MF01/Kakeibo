@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { Button, Card, Col, Row, Space, Spin, Statistic, Typography, message } from 'antd'
+import { Button, Card, Col, Row, Space, Spin, Statistic, Typography, message, theme } from 'antd'
 import { FileExcelOutlined, FilePdfOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import CategoryPieChart from '@renderer/components/report/CategoryPieChart'
@@ -11,6 +11,7 @@ import type { AppLanguage } from '@shared/types/settings'
 
 function ReportPage(): React.JSX.Element {
   const { t, i18n } = useTranslation()
+  const { token } = theme.useToken()
   const currency = useCurrencyFormatter()
   const { billId } = useParams<{ billId: string }>()
   const id = Number(billId)
@@ -81,7 +82,7 @@ function ReportPage(): React.JSX.Element {
             <Statistic
               title={t('report.totalIncome')}
               value={currency.format(summary.totalIncome)}
-              valueStyle={{ color: '#3f8600' }}
+              valueStyle={{ color: token.colorSuccess }}
             />
           </Card>
         </Col>
@@ -90,7 +91,7 @@ function ReportPage(): React.JSX.Element {
             <Statistic
               title={t('report.totalExpense')}
               value={currency.format(summary.totalExpense)}
-              valueStyle={{ color: '#cf1322' }}
+              valueStyle={{ color: token.colorError }}
             />
           </Card>
         </Col>
@@ -99,7 +100,7 @@ function ReportPage(): React.JSX.Element {
             <Statistic
               title={t('report.balance')}
               value={currency.format(summary.balance)}
-              valueStyle={{ color: summary.balance >= 0 ? '#3f8600' : '#cf1322' }}
+              valueStyle={{ color: summary.balance >= 0 ? token.colorSuccess : token.colorError }}
             />
           </Card>
         </Col>

@@ -8,5 +8,6 @@ export const billsApi = {
   get: (id: number) => invoke<Bill>(IPC.bills.get, id),
   create: (input: BillCreateInput) => invoke<Bill>(IPC.bills.create, input),
   update: (id: number, input: BillUpdateInput) => invoke<Bill>(IPC.bills.update, id, input),
-  delete: (id: number) => invoke<void>(IPC.bills.delete, id)
+  delete: (id: number) => invoke<void>(IPC.bills.delete, id),
+  activate: (id: number) => invoke<Bill>(IPC.bills.activate, id)
 }

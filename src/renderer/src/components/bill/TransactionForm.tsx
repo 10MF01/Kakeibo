@@ -8,7 +8,6 @@ import { categoryDisplayName } from '@renderer/utils/categoryName'
 export interface TransactionFormValues {
   type: CategoryType
   categoryId: number
-  subcategoryId?: number | null
   amount: number
   note?: string | null
 }
@@ -16,7 +15,6 @@ export interface TransactionFormValues {
 interface TransactionFormInitialValues {
   type?: CategoryType
   categoryId?: number
-  subcategoryId?: number | null
   amount?: number
   note?: string | null
 }
@@ -34,7 +32,6 @@ interface TransactionFormProps {
 interface InternalFormValues {
   type: CategoryType
   categoryId: number
-  subcategoryId?: number
   displayAmount: number
   note?: string
 }
@@ -52,41 +49,28 @@ function TransactionForm({
   const currency = useCurrencyFormatter()
   const [form] = Form.useForm<InternalFormValues>()
   const type = Form.useWatch('type', form)
-  const categoryId = Form.useWatch('categoryId', form)
 
   useEffect(() => {
     if (open) {
       form.setFieldsValue({
         type: initialValues?.type ?? 'expense',
         categoryId: initialValues?.categoryId,
-        subcategoryId: initialValues?.subcategoryId ?? undefined,
         displayAmount: initialValues?.amount ? initialValues.amount / 100 : undefined,
         note: initialValues?.note ?? undefined
       })
     }
   }, [open, initialValues, form])
 
-  const primaryOptions = useMemo(
+  const categoryOptions = useMemo(
     () =>
       categories
-        .filter((c) => c.parentId === null && c.type === type)
+        .filter((c) => c.type === type)
         .map((c) => ({ value: c.id, label: categoryDisplayName(c, t) })),
     [categories, type, t]
-  )
-  const subOptions = useMemo(
-    () =>
-      categories
-        .filter((c) => c.parentId === categoryId)
-        .map((c) => ({ value: c.id, label: categoryDisplayName(c, t) })),
-    [categories, categoryId, t]
   )
 
   const handleTypeChange = (): void => {
     form.setFieldValue('categoryId', undefined)
-    form.setFieldValue('subcategoryId', undefined)
-  }
-  const handleCategoryChange = (): void => {
-    form.setFieldValue('subcategoryId', undefined)
   }
 
   const handleOk = async (): Promise<void> => {
@@ -94,7 +78,6 @@ function TransactionForm({
     await onSubmit({
       type: values.type,
       categoryId: values.categoryId,
-      subcategoryId: values.subcategoryId ?? null,
       amount: Math.round(values.displayAmount * 100),
       note: values.note ?? null
     })
@@ -121,19 +104,7 @@ function TransactionForm({
           label={t('transaction.form.primaryCategory')}
           rules={[{ required: true, message: t('transaction.form.primaryRequired') }]}
         >
-          <Select
-            options={primaryOptions}
-            placeholder={t('transaction.form.selectCategory')}
-            onChange={handleCategoryChange}
-          />
-        </Form.Item>
-        <Form.Item name="subcategoryId" label={t('transaction.form.subcategory')}>
-          <Select
-            options={subOptions}
-            placeholder={t('transaction.form.selectSubcategory')}
-            allowClear
-            disabled={!categoryId}
-          />
+          <Select options={categoryOptions} placeholder={t('transaction.form.selectCategory')} />
         </Form.Item>
         <Form.Item
           name="displayAmount"

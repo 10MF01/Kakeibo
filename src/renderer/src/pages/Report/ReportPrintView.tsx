@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { theme } from 'antd'
 import dayjs from 'dayjs'
 import CategoryPieChart from '@renderer/components/report/CategoryPieChart'
 import CategoryBreakdownTable from '@renderer/components/report/CategoryBreakdownTable'
@@ -24,6 +25,7 @@ function SummaryBox({ label, value, color }: SummaryBoxProps): React.JSX.Element
 
 function ReportPrintView(): React.JSX.Element {
   const { t } = useTranslation()
+  const { token } = theme.useToken()
   const currency = useCurrencyFormatter()
   const { billId } = useParams<{ billId: string }>()
   const id = Number(billId)
@@ -57,17 +59,17 @@ function ReportPrintView(): React.JSX.Element {
         <SummaryBox
           label={t('report.totalIncome')}
           value={currency.format(summary.totalIncome)}
-          color="#3f8600"
+          color={token.colorSuccess}
         />
         <SummaryBox
           label={t('report.totalExpense')}
           value={currency.format(summary.totalExpense)}
-          color="#cf1322"
+          color={token.colorError}
         />
         <SummaryBox
           label={t('report.balance')}
           value={currency.format(summary.balance)}
-          color={summary.balance >= 0 ? '#3f8600' : '#cf1322'}
+          color={summary.balance >= 0 ? token.colorSuccess : token.colorError}
         />
       </div>
 

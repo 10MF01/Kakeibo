@@ -12,4 +12,5 @@ export function registerBillHandlers(): void {
     billService.updateBill(id, input)
   )
   handle(IPC.bills.delete, (id: number) => billService.deleteBill(id))
+  handle(IPC.bills.activate, (id: number) => billService.activateBill(id))
 }

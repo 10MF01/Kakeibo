@@ -15,7 +15,6 @@ interface TransactionRow {
   date: string
   type: CategoryType
   category_id: number
-  subcategory_id: number | null
   amount: number
   note: string | null
   created_at: string
@@ -24,7 +23,6 @@ interface TransactionRow {
 
 interface CategoryRow {
   id: number
-  parent_id: number | null
   type: CategoryType
 }
 
@@ -35,7 +33,6 @@ function rowToTransaction(row: TransactionRow): Transaction {
     date: row.date,
     type: row.type,
     categoryId: row.category_id,
-    subcategoryId: row.subcategory_id,
     amount: row.amount,
     note: row.note,
     createdAt: row.created_at,
@@ -43,43 +40,18 @@ function rowToTransaction(row: TransactionRow): Transaction {
   }
 }
 
-function validateCategory(
-  db: Database.Database,
-  categoryId: number,
-  subcategoryId: number | null | undefined,
-  type: CategoryType
-): void {
+function validateCategory(db: Database.Database, categoryId: number, type: CategoryType): void {
   const category = db.prepare('SELECT * FROM categories WHERE id = ?').get(categoryId) as
     | CategoryRow
     | undefined
   if (!category) {
     throw new AppError('CATEGORY_NOT_FOUND', `category ${categoryId} not found`)
   }
-  if (category.parent_id != null) {
-    throw new AppError(
-      'TRANSACTION_CATEGORY_TYPE_MISMATCH',
-      'transaction category must be a primary category, not a subcategory'
-    )
-  }
   if (category.type !== type) {
     throw new AppError(
       'TRANSACTION_CATEGORY_TYPE_MISMATCH',
       'category type does not match transaction type'
     )
-  }
-  if (subcategoryId != null) {
-    const sub = db.prepare('SELECT * FROM categories WHERE id = ?').get(subcategoryId) as
-      | CategoryRow
-      | undefined
-    if (!sub) {
-      throw new AppError('CATEGORY_NOT_FOUND', `subcategory ${subcategoryId} not found`)
-    }
-    if (sub.parent_id !== categoryId) {
-      throw new AppError(
-        'TRANSACTION_CATEGORY_TYPE_MISMATCH',
-        'subcategory must belong to the selected primary category'
-      )
-    }
   }
 }
 
@@ -112,22 +84,14 @@ export function listTransactionsByDate(billId: number, date: string): Transactio
 export function createTransaction(input: TransactionCreateInput): Transaction {
   const db = getDb()
   validateDateInBillRange(input.billId, input.date)
-  validateCategory(db, input.categoryId, input.subcategoryId, input.type)
+  validateCategory(db, input.categoryId, input.type)
 
   const result = db
     .prepare(
-      `INSERT INTO transactions (bill_id, date, type, category_id, subcategory_id, amount, note)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`
+      `INSERT INTO transactions (bill_id, date, type, category_id, amount, note)
+       VALUES (?, ?, ?, ?, ?, ?)`
     )
-    .run(
-      input.billId,
-      input.date,
-      input.type,
-      input.categoryId,
-      input.subcategoryId ?? null,
-      input.amount,
-      input.note ?? null
-    )
+    .run(input.billId, input.date, input.type, input.categoryId, input.amount, input.note ?? null)
   const row = db
     .prepare('SELECT * FROM transactions WHERE id = ?')
     .get(result.lastInsertRowid) as TransactionRow
@@ -146,21 +110,18 @@ export function updateTransaction(id: number, input: TransactionUpdateInput): Tr
   const nextDate = input.date ?? existing.date
   const nextType = input.type ?? existing.type
   const nextCategoryId = input.categoryId ?? existing.category_id
-  const nextSubcategoryId =
-    input.subcategoryId !== undefined ? input.subcategoryId : existing.subcategory_id
 
   validateDateInBillRange(existing.bill_id, nextDate)
-  validateCategory(db, nextCategoryId, nextSubcategoryId, nextType)
+  validateCategory(db, nextCategoryId, nextType)
 
   db.prepare(
     `UPDATE transactions
-     SET date = ?, type = ?, category_id = ?, subcategory_id = ?, amount = ?, note = ?, updated_at = datetime('now')
+     SET date = ?, type = ?, category_id = ?, amount = ?, note = ?, updated_at = datetime('now')
      WHERE id = ?`
   ).run(
     nextDate,
     nextType,
     nextCategoryId,
-    nextSubcategoryId,
     input.amount ?? existing.amount,
     input.note !== undefined ? input.note : existing.note,
     id

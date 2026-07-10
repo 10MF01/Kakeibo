@@ -14,8 +14,6 @@ interface TransactionRow {
   type: 'income' | 'expense'
   category: string
   category_name_key: string | null
-  subcategory: string | null
-  subcategory_name_key: string | null
   amount: number
   note: string | null
 }
@@ -71,11 +69,9 @@ async function buildExcelBuffer(billId: number, language: AppLanguage): Promise<
   const db = getDb()
   const transactions = db
     .prepare(
-      `SELECT t.date, t.type, c.name as category, c.name_key as category_name_key,
-              s.name as subcategory, s.name_key as subcategory_name_key, t.amount, t.note
+      `SELECT t.date, t.type, c.name as category, c.name_key as category_name_key, t.amount, t.note
        FROM transactions t
        JOIN categories c ON t.category_id = c.id
-       LEFT JOIN categories s ON t.subcategory_id = s.id
        WHERE t.bill_id = ?
        ORDER BY t.date, t.id`
     )
@@ -86,7 +82,6 @@ async function buildExcelBuffer(billId: number, language: AppLanguage): Promise<
     { header: labels.date, key: 'date', width: 12 },
     { header: labels.type, key: 'type', width: 8 },
     { header: labels.primaryCategory, key: 'category', width: 16 },
-    { header: labels.subcategory, key: 'subcategory', width: 16 },
     { header: labels.amount, key: 'amount', width: 12 },
     { header: labels.note, key: 'note', width: 24 }
   ]
@@ -97,9 +92,6 @@ async function buildExcelBuffer(billId: number, language: AppLanguage): Promise<
       date: t.date,
       type: t.type === 'income' ? labels.income : labels.expense,
       category: resolveCategorySeedLabel(t.category_name_key, t.category, language),
-      subcategory: t.subcategory
-        ? resolveCategorySeedLabel(t.subcategory_name_key, t.subcategory, language)
-        : '',
       amount: toDisplayAmount(t.amount),
       note: t.note ?? ''
     })

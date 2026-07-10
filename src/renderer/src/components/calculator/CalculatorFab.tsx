@@ -15,7 +15,7 @@ function CalculatorFab(): React.JSX.Element {
       onOpenChange={setOpen}
       placement="topRight"
       title={t('calculator.title')}
-      content={<CalculatorPopover />}
+      content={<CalculatorPopover open={open} />}
     >
       <FloatButton icon={<CalculatorOutlined />} tooltip={open ? undefined : t('calculator.title')} />
     </Popover>

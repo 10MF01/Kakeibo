@@ -10,7 +10,6 @@ interface ExportLabels {
   count: string
   date: string
   primaryCategory: string
-  subcategory: string
   note: string
   bill: string
   period: string
@@ -36,8 +35,7 @@ export const EXPORT_LABELS: Record<AppLanguage, ExportLabels> = {
     percentage: '占比',
     count: '笔数',
     date: '日期',
-    primaryCategory: '一级分类',
-    subcategory: '二级分类',
+    primaryCategory: '分类',
     note: '备注',
     bill: '账单',
     period: '周期',
@@ -62,7 +60,6 @@ export const EXPORT_LABELS: Record<AppLanguage, ExportLabels> = {
     count: '件数',
     date: '日付',
     primaryCategory: 'カテゴリ',
-    subcategory: 'サブカテゴリ',
     note: 'メモ',
     bill: '家計簿',
     period: '期間',
@@ -87,7 +84,6 @@ export const EXPORT_LABELS: Record<AppLanguage, ExportLabels> = {
     count: 'Count',
     date: 'Date',
     primaryCategory: 'Category',
-    subcategory: 'Subcategory',
     note: 'Note',
     bill: 'Bill',
     period: 'Period',

@@ -9,12 +9,7 @@ import { categoryDisplayName } from '@renderer/utils/categoryName'
 import type { Category, CategoryType } from '@shared/types/category'
 import type { TFunction } from 'i18next'
 
-const ERROR_CODES = [
-  'CATEGORY_DUPLICATE_NAME',
-  'CATEGORY_HAS_SUBCATEGORIES',
-  'CATEGORY_IN_USE',
-  'CATEGORY_NOT_FOUND'
-] as const
+const ERROR_CODES = ['CATEGORY_DUPLICATE_NAME', 'CATEGORY_IN_USE', 'CATEGORY_NOT_FOUND'] as const
 
 function resolveErrorMessage(err: unknown, t: TFunction): string {
   const code = (err as { code?: string } | undefined)?.code
@@ -89,24 +84,6 @@ function CategoriesPage(): React.JSX.Element {
     }
   }
 
-  const handleAddSubcategory = async (parent: Category, name: string): Promise<void> => {
-    try {
-      await window.api.categories.create({ parentId: parent.id, type: parent.type, name })
-      await refresh()
-    } catch (err) {
-      message.error(resolveErrorMessage(err, t))
-    }
-  }
-
-  const handleDeleteSubcategory = async (category: Category): Promise<void> => {
-    try {
-      await window.api.categories.delete(category.id)
-      await refresh()
-    } catch (err) {
-      message.error(resolveErrorMessage(err, t))
-    }
-  }
-
   return (
     <div>
       <Typography.Title level={3}>{t('categories.title')}</Typography.Title>
@@ -129,8 +106,6 @@ function CategoriesPage(): React.JSX.Element {
               categories={expenseCategories}
               onEditPrimary={openEditPrimary}
               onDeletePrimary={handleDeletePrimary}
-              onAddSubcategory={handleAddSubcategory}
-              onDeleteSubcategory={handleDeleteSubcategory}
             />
           </Card>
         </Col>
@@ -151,8 +126,6 @@ function CategoriesPage(): React.JSX.Element {
               categories={incomeCategories}
               onEditPrimary={openEditPrimary}
               onDeletePrimary={handleDeletePrimary}
-              onAddSubcategory={handleAddSubcategory}
-              onDeleteSubcategory={handleDeleteSubcategory}
             />
           </Card>
         </Col>

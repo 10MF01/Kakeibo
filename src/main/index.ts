@@ -1,7 +1,13 @@
 import { app, dialog, shell, BrowserWindow } from 'electron'
 import { join } from 'path'
+import { existsSync } from 'fs'
 import { getDb } from './db/connection'
 import { registerIpc } from './ipc/registerIpc'
+
+// Only resolves in dev (out/main -> project root/resources); a packaged build's
+// own .exe icon (baked in by electron-builder from resources/icon.png) is used
+// automatically when this path doesn't exist inside the asar.
+const iconPath = join(__dirname, '../../resources/icon.png')
 
 function createMainWindow(): void {
   const mainWindow = new BrowserWindow({
@@ -12,6 +18,7 @@ function createMainWindow(): void {
     show: false,
     autoHideMenuBar: true,
     title: 'Kakeibo',
+    ...(existsSync(iconPath) ? { icon: iconPath } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false,

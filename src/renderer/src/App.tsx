@@ -26,7 +26,11 @@ function App(): React.JSX.Element {
       locale={ANTD_LOCALE[language]}
       theme={{
         token: {
-          colorPrimary: '#2f6f4f',
+          colorPrimary: '#12A150',
+          colorSuccess: '#12A150',
+          colorError: '#F5222D',
+          colorWarning: '#FAAD14',
+          colorInfo: '#1677FF',
           borderRadius: 8,
           fontFamily:
             '"Segoe UI", "PingFang SC", "Hiragino Sans", "Noto Sans JP", sans-serif'

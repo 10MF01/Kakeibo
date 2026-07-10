@@ -75,7 +75,6 @@ function DayEntryCard({
           dataSource={transactions}
           renderItem={(tx) => {
             const category = categoryMap.get(tx.categoryId)
-            const subcategory = tx.subcategoryId ? categoryMap.get(tx.subcategoryId) : null
             return (
               <List.Item
                 actions={[
@@ -100,7 +99,6 @@ function DayEntryCard({
                     {tx.type === 'income' ? t('transaction.form.income') : t('transaction.form.expense')}
                   </Tag>
                   <span>{category ? categoryDisplayName(category, t) : '-'}</span>
-                  {subcategory && <Tag>{categoryDisplayName(subcategory, t)}</Tag>}
                   {tx.note && <Typography.Text type="secondary">{tx.note}</Typography.Text>}
                 </Space>
                 <span>{currency.format(tx.amount)}</span>

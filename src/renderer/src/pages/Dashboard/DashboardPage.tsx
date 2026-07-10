@@ -1,7 +1,20 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Button, Card, Col, Empty, List, Row, Space, Spin, Statistic, Tag, Typography } from 'antd'
+import {
+  Button,
+  Card,
+  Col,
+  Empty,
+  List,
+  Row,
+  Space,
+  Spin,
+  Statistic,
+  Tag,
+  Typography,
+  theme
+} from 'antd'
 import { PlusOutlined } from '@ant-design/icons'
 import { useBillStore } from '@renderer/store/useBillStore'
 import { useCategoryStore } from '@renderer/store/useCategoryStore'
@@ -11,6 +24,7 @@ import type { Transaction } from '@shared/types/transaction'
 
 function DashboardPage(): React.JSX.Element {
   const { t } = useTranslation()
+  const { token } = theme.useToken()
   const navigate = useNavigate()
   const { activeBill, loaded, fetch } = useBillStore()
   const { categories, fetch: fetchCategories } = useCategoryStore()
@@ -89,7 +103,7 @@ function DashboardPage(): React.JSX.Element {
             <Statistic
               title={t('dashboard.periodIncome')}
               value={currency.format(totalIncome)}
-              valueStyle={{ color: '#3f8600' }}
+              valueStyle={{ color: token.colorSuccess }}
             />
           </Card>
         </Col>
@@ -98,7 +112,7 @@ function DashboardPage(): React.JSX.Element {
             <Statistic
               title={t('dashboard.periodExpense')}
               value={currency.format(totalExpense)}
-              valueStyle={{ color: '#cf1322' }}
+              valueStyle={{ color: token.colorError }}
             />
           </Card>
         </Col>
@@ -107,7 +121,7 @@ function DashboardPage(): React.JSX.Element {
             <Statistic
               title={t('dashboard.periodBalance')}
               value={currency.format(balance)}
-              valueStyle={{ color: balance >= 0 ? '#3f8600' : '#cf1322' }}
+              valueStyle={{ color: balance >= 0 ? token.colorSuccess : token.colorError }}
             />
           </Card>
         </Col>
@@ -120,7 +134,6 @@ function DashboardPage(): React.JSX.Element {
             dataSource={recentTransactions}
             renderItem={(t2) => {
               const category = categoryMap.get(t2.categoryId)
-              const subcategory = t2.subcategoryId ? categoryMap.get(t2.subcategoryId) : null
               return (
                 <List.Item>
                   <Space>
@@ -129,7 +142,6 @@ function DashboardPage(): React.JSX.Element {
                       {t2.type === 'income' ? t('transaction.form.income') : t('transaction.form.expense')}
                     </Tag>
                     <span>{category ? categoryDisplayName(category, t) : '-'}</span>
-                    {subcategory && <Tag>{categoryDisplayName(subcategory, t)}</Tag>}
                   </Space>
                   <span>{currency.format(t2.amount)}</span>
                 </List.Item>

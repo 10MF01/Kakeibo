@@ -11,7 +11,8 @@ export const IPC = {
     get: 'bills:get',
     create: 'bills:create',
     update: 'bills:update',
-    delete: 'bills:delete'
+    delete: 'bills:delete',
+    activate: 'bills:activate'
   },
   transactions: {
     listByBill: 'transactions:listByBill',

@@ -16,7 +16,7 @@ interface CategoryFormProps {
   onSubmit: (values: CategoryFormValues) => Promise<void> | void
 }
 
-const DEFAULT_COLOR = '#2f6f4f'
+const DEFAULT_COLOR = '#12A150'
 
 function CategoryForm({
   open,

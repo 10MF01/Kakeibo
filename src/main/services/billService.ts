@@ -58,13 +58,9 @@ export function getBill(id: number): Bill {
 
 export function getActiveBill(): Bill | null {
   const db = getDb()
-  const today = dayjs().format('YYYY-MM-DD')
-  const row = db
-    .prepare(
-      `SELECT * FROM bills WHERE status = 'active' AND start_date <= ? AND end_date >= ?
-       ORDER BY created_at DESC LIMIT 1`
-    )
-    .get(today, today) as BillRow | undefined
+  const row = db.prepare("SELECT * FROM bills WHERE status = 'active' LIMIT 1").get() as
+    | BillRow
+    | undefined
   return row ? rowToBill(row) : null
 }
 
@@ -72,10 +68,23 @@ export function createBill(input: BillCreateInput): Bill {
   validateRange(input.startDate, input.endDate)
   const db = getDb()
   const name = input.name?.trim() || `${input.startDate} ~ ${input.endDate}`
+  const hasActiveBill = db.prepare("SELECT 1 FROM bills WHERE status = 'active' LIMIT 1").get()
+  const status: 'active' | 'closed' = hasActiveBill ? 'closed' : 'active'
   const result = db
-    .prepare('INSERT INTO bills (name, start_date, end_date) VALUES (?, ?, ?)')
-    .run(name, input.startDate, input.endDate)
+    .prepare('INSERT INTO bills (name, start_date, end_date, status) VALUES (?, ?, ?, ?)')
+    .run(name, input.startDate, input.endDate, status)
   return getBill(result.lastInsertRowid as number)
+}
+
+export function activateBill(id: number): Bill {
+  const db = getDb()
+  getBill(id)
+  const activate = db.transaction((billId: number) => {
+    db.prepare("UPDATE bills SET status = 'closed', updated_at = datetime('now') WHERE status = 'active'").run()
+    db.prepare("UPDATE bills SET status = 'active', updated_at = datetime('now') WHERE id = ?").run(billId)
+  })
+  activate(id)
+  return getBill(id)
 }
 
 export function updateBill(id: number, input: BillUpdateInput): Bill {

@@ -1,6 +1,5 @@
-import { useState } from 'react'
-import { Button, Card, Empty, Input, Popconfirm, Space, Tag, Typography } from 'antd'
-import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons'
+import { Button, Card, Empty, Popconfirm, Space, Typography } from 'antd'
+import { DeleteOutlined, EditOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import type { Category } from '@shared/types/category'
 import { categoryDisplayName } from '@renderer/utils/categoryName'
@@ -9,106 +8,54 @@ interface CategoryTreeProps {
   categories: Category[]
   onEditPrimary: (category: Category) => void
   onDeletePrimary: (category: Category) => void
-  onAddSubcategory: (parent: Category, name: string) => void
-  onDeleteSubcategory: (category: Category) => void
 }
 
 function CategoryTree({
   categories,
   onEditPrimary,
-  onDeletePrimary,
-  onAddSubcategory,
-  onDeleteSubcategory
+  onDeletePrimary
 }: CategoryTreeProps): React.JSX.Element {
   const { t } = useTranslation()
-  const primaries = categories.filter((c) => c.parentId === null)
-  const [addingFor, setAddingFor] = useState<number | null>(null)
-  const [draftName, setDraftName] = useState('')
 
-  if (primaries.length === 0) {
+  if (categories.length === 0) {
     return <Empty description={t('categories.empty')} />
-  }
-
-  const commitDraft = (primary: Category): void => {
-    const name = draftName.trim()
-    if (name) onAddSubcategory(primary, name)
-    setDraftName('')
-    setAddingFor(null)
   }
 
   return (
     <Space direction="vertical" style={{ width: '100%' }} size={12}>
-      {primaries.map((primary) => {
-        const subs = categories.filter((c) => c.parentId === primary.id)
-        return (
-          <Card key={primary.id} size="small" styles={{ body: { padding: 12 } }}>
-            <Space style={{ width: '100%', justifyContent: 'space-between' }}>
-              <Space>
-                <span
-                  style={{
-                    display: 'inline-block',
-                    width: 10,
-                    height: 10,
-                    borderRadius: '50%',
-                    background: primary.color ?? '#999'
-                  }}
-                />
-                <Typography.Text strong>{categoryDisplayName(primary, t)}</Typography.Text>
-              </Space>
-              <Space size={4}>
-                <Button
-                  type="text"
-                  size="small"
-                  icon={<EditOutlined />}
-                  onClick={() => onEditPrimary(primary)}
-                />
-                <Popconfirm
-                  title={t('categories.deleteConfirmTitle')}
-                  description={t('categories.deleteConfirmDesc')}
-                  onConfirm={() => onDeletePrimary(primary)}
-                >
-                  <Button type="text" size="small" danger icon={<DeleteOutlined />} />
-                </Popconfirm>
-              </Space>
+      {categories.map((category) => (
+        <Card key={category.id} size="small" styles={{ body: { padding: 12 } }}>
+          <Space style={{ width: '100%', justifyContent: 'space-between' }}>
+            <Space>
+              <span
+                style={{
+                  display: 'inline-block',
+                  width: 10,
+                  height: 10,
+                  borderRadius: '50%',
+                  background: category.color ?? '#999'
+                }}
+              />
+              <Typography.Text strong>{categoryDisplayName(category, t)}</Typography.Text>
             </Space>
-            <div style={{ marginTop: 8 }}>
-              <Space size={[6, 6]} wrap>
-                {subs.map((sub) => (
-                  <Tag
-                    key={sub.id}
-                    closable
-                    onClose={(e) => {
-                      e.preventDefault()
-                      onDeleteSubcategory(sub)
-                    }}
-                  >
-                    {categoryDisplayName(sub, t)}
-                  </Tag>
-                ))}
-                {addingFor === primary.id ? (
-                  <Input
-                    size="small"
-                    autoFocus
-                    style={{ width: 120 }}
-                    value={draftName}
-                    placeholder={t('categories.form.subcategoryNamePlaceholder')}
-                    onChange={(e) => setDraftName(e.target.value)}
-                    onPressEnter={() => commitDraft(primary)}
-                    onBlur={() => commitDraft(primary)}
-                  />
-                ) : (
-                  <Tag
-                    onClick={() => setAddingFor(primary.id)}
-                    style={{ cursor: 'pointer', borderStyle: 'dashed' }}
-                  >
-                    <PlusOutlined /> {t('categories.addSubcategory')}
-                  </Tag>
-                )}
-              </Space>
-            </div>
-          </Card>
-        )
-      })}
+            <Space size={4}>
+              <Button
+                type="text"
+                size="small"
+                icon={<EditOutlined />}
+                onClick={() => onEditPrimary(category)}
+              />
+              <Popconfirm
+                title={t('categories.deleteConfirmTitle')}
+                description={t('categories.deleteConfirmDesc')}
+                onConfirm={() => onDeletePrimary(category)}
+              >
+                <Button type="text" size="small" danger icon={<DeleteOutlined />} />
+              </Popconfirm>
+            </Space>
+          </Space>
+        </Card>
+      ))}
     </Space>
   )
 }

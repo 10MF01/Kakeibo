@@ -9,6 +9,8 @@ interface BillState {
   fetch: () => Promise<void>
   refresh: () => Promise<void>
   refreshActive: () => Promise<void>
+  activateBill: (id: number) => Promise<void>
+  deleteBill: (id: number) => Promise<void>
 }
 
 export const useBillStore = create<BillState>((set, get) => ({
@@ -36,5 +38,13 @@ export const useBillStore = create<BillState>((set, get) => ({
   refreshActive: async () => {
     const activeBill = await window.api.bills.getActive()
     set({ activeBill })
+  },
+  activateBill: async (id: number) => {
+    await window.api.bills.activate(id)
+    await get().refresh()
+  },
+  deleteBill: async (id: number) => {
+    await window.api.bills.delete(id)
+    await get().refresh()
   }
 }))

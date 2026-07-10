@@ -9,7 +9,6 @@ import type {
 
 interface CategoryRow {
   id: number
-  parent_id: number | null
   type: 'income' | 'expense'
   name: string
   name_key: string | null
@@ -24,7 +23,6 @@ interface CategoryRow {
 function rowToCategory(row: CategoryRow): Category {
   return {
     id: row.id,
-    parentId: row.parent_id,
     type: row.type,
     name: row.name,
     nameKey: row.name_key,
@@ -45,47 +43,21 @@ export function listCategories(filter?: CategoryListFilter): Category[] {
     sql += ' WHERE type = ?'
     params.push(filter.type)
   }
-  sql += ' ORDER BY (parent_id IS NOT NULL), sort_order, id'
+  sql += ' ORDER BY sort_order, id'
   const rows = db.prepare(sql).all(...params) as CategoryRow[]
   return rows.map(rowToCategory)
 }
 
 export function createCategory(input: CategoryCreateInput): Category {
   const db = getDb()
-  const parentId = input.parentId ?? null
-
-  if (parentId != null) {
-    const parent = db.prepare('SELECT * FROM categories WHERE id = ?').get(parentId) as
-      | CategoryRow
-      | undefined
-    if (!parent) {
-      throw new AppError('CATEGORY_NOT_FOUND', `parent category ${parentId} not found`)
-    }
-    if (parent.parent_id != null) {
-      throw new AppError(
-        'SUBCATEGORY_PARENT_INVALID',
-        'cannot create a subcategory under another subcategory'
-      )
-    }
-    if (parent.type !== input.type) {
-      throw new AppError('SUBCATEGORY_PARENT_INVALID', 'subcategory type must match parent type')
-    }
-  }
 
   try {
     const result = db
       .prepare(
-        `INSERT INTO categories (parent_id, type, name, icon, color, sort_order, is_system)
-         VALUES (?, ?, ?, ?, ?, ?, 0)`
+        `INSERT INTO categories (type, name, icon, color, sort_order, is_system)
+         VALUES (?, ?, ?, ?, ?, 0)`
       )
-      .run(
-        parentId,
-        input.type,
-        input.name,
-        input.icon ?? null,
-        input.color ?? null,
-        input.sortOrder ?? 0
-      )
+      .run(input.type, input.name, input.icon ?? null, input.color ?? null, input.sortOrder ?? 0)
     const row = db
       .prepare('SELECT * FROM categories WHERE id = ?')
       .get(result.lastInsertRowid) as CategoryRow
@@ -94,7 +66,7 @@ export function createCategory(input: CategoryCreateInput): Category {
     if (err instanceof Error && err.message.includes('UNIQUE constraint failed')) {
       throw new AppError(
         'CATEGORY_DUPLICATE_NAME',
-        `category name "${input.name}" already exists at this level`
+        `category name "${input.name}" already exists for this type`
       )
     }
     throw err
@@ -155,16 +127,9 @@ export function deleteCategory(id: number): void {
     throw new AppError('CATEGORY_NOT_FOUND', `category ${id} not found`)
   }
 
-  const childCount = db
-    .prepare('SELECT COUNT(*) as c FROM categories WHERE parent_id = ?')
-    .get(id) as { c: number }
-  if (childCount.c > 0) {
-    throw new AppError('CATEGORY_HAS_SUBCATEGORIES', 'delete or reassign subcategories first')
-  }
-
   const txCount = db
-    .prepare('SELECT COUNT(*) as c FROM transactions WHERE category_id = ? OR subcategory_id = ?')
-    .get(id, id) as { c: number }
+    .prepare('SELECT COUNT(*) as c FROM transactions WHERE category_id = ?')
+    .get(id) as { c: number }
   if (txCount.c > 0) {
     throw new AppError('CATEGORY_IN_USE', 'category is referenced by existing transactions')
   }

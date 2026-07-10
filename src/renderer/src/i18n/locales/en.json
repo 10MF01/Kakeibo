@@ -32,11 +32,17 @@
     "subtitle": "Pick any date range you like (e.g. 7/15 – 8/15) — a daily entry form is generated for each day in the period.",
     "create": "New bill",
     "empty": "No bills yet — create one to get started",
-    "active": "Active",
+    "active": "Current bill",
     "createFailed": "Failed to create bill",
     "notFound": "Bill not found",
     "saveFailed": "Failed to save",
     "deleteFailed": "Failed to delete",
+    "deleteSuccess": "Bill deleted",
+    "activateFailed": "Failed to set as current bill",
+    "menuActivate": "Set as current bill",
+    "menuDelete": "Delete bill",
+    "deleteConfirmTitle": "Delete this bill?",
+    "deleteConfirmDesc": "All transactions in this bill will also be deleted. This cannot be undone.",
     "form": {
       "title": "New bill",
       "period": "Date range",
@@ -62,36 +68,31 @@
       "income": "Income",
       "primaryCategory": "Category",
       "primaryRequired": "Please select a category",
-      "subcategory": "Subcategory (optional, note only)",
       "amount": "Amount",
       "amountRequired": "Please enter an amount",
       "note": "Note",
       "notePlaceholder": "Optional",
-      "selectCategory": "Select a category",
-      "selectSubcategory": "Select a subcategory"
+      "selectCategory": "Select a category"
     }
   },
   "categories": {
     "title": "Categories",
-    "subtitle": "Categories drive the report statistics; subcategories are notes only and are not aggregated.",
+    "subtitle": "Categories drive the report statistics. Add, edit, or delete freely — for special notes, just use the note field on an entry.",
     "expense": "Expense categories",
     "income": "Income categories",
     "createPrimary": "New category",
     "empty": "No categories yet",
-    "addSubcategory": "Add subcategory",
     "deleteConfirmTitle": "Delete this category?",
-    "deleteConfirmDesc": "Cannot be deleted while it has subcategories or linked transactions",
+    "deleteConfirmDesc": "Cannot be deleted while it has linked transactions",
     "editTitle": "Edit category",
     "form": {
       "name": "Name",
       "nameRequired": "Please enter a name",
       "namePlaceholder": "e.g. Food",
-      "color": "Color tag",
-      "subcategoryNamePlaceholder": "Subcategory name"
+      "color": "Color tag"
     },
     "errors": {
-      "CATEGORY_DUPLICATE_NAME": "A category with this name already exists at this level",
-      "CATEGORY_HAS_SUBCATEGORIES": "Delete its subcategories first",
+      "CATEGORY_DUPLICATE_NAME": "A category with this name already exists for this type",
       "CATEGORY_IN_USE": "This category is referenced by existing transactions",
       "CATEGORY_NOT_FOUND": "Category not found — please refresh",
       "default": "Something went wrong"

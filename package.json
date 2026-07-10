@@ -1,7 +1,7 @@
 {
   "name": "kakeibo",
   "version": "0.0.1",
-  "description": "个人记账软件 - 自定义账单周期，一级/二级分类，月度报告导出",
+  "description": "个人记账软件 - 自定义账单周期，自定义分类，月度报告导出",
   "main": "./out/main/index.js",
   "author": "10MF01",
   "private": true,
