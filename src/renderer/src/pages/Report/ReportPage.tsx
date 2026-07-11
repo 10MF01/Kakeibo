@@ -107,12 +107,12 @@ function ReportPage(): React.JSX.Element {
       </Row>
 
       <Row gutter={24}>
-        <Col span={16}>
+        <Col span={14}>
           <Card title={t('report.expensePie')}>
             <CategoryPieChart data={summary.expenseByCategory} />
           </Card>
         </Col>
-        <Col span={8}>
+        <Col span={10}>
           <Card title={t('report.expenseDetail')}>
             <CategoryBreakdownTable data={summary.expenseByCategory} />
           </Card>
@@ -121,12 +121,12 @@ function ReportPage(): React.JSX.Element {
 
       {summary.incomeByCategory.length > 0 && (
         <Row gutter={24} style={{ marginTop: 24 }}>
-          <Col span={16}>
+          <Col span={14}>
             <Card title={t('report.incomePie')}>
               <CategoryPieChart data={summary.incomeByCategory} />
             </Card>
           </Col>
-          <Col span={8}>
+          <Col span={10}>
             <Card title={t('report.incomeDetail')}>
               <CategoryBreakdownTable data={summary.incomeByCategory} />
             </Card>
