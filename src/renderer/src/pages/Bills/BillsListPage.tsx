@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Button, Card, Dropdown, Empty, List, Modal, Tag, Typography, message } from 'antd'
+import { Button, Dropdown, Empty, List, Modal, Tag, Typography, message, theme } from 'antd'
 import type { MenuProps } from 'antd'
 import { MoreOutlined, PlusOutlined } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
@@ -7,13 +7,18 @@ import { useTranslation } from 'react-i18next'
 import type { Bill } from '@shared/types/bill'
 import BillForm, { type BillFormValues } from '@renderer/components/bill/BillForm'
 import { useBillStore } from '@renderer/store/useBillStore'
+import { dayCount } from '@renderer/utils/billDayCount'
 
 function BillsListPage(): React.JSX.Element {
   const { t } = useTranslation()
+  const { token } = theme.useToken()
   const navigate = useNavigate()
   const { bills, fetch, refresh, activateBill, deleteBill } = useBillStore()
   const [formOpen, setFormOpen] = useState(false)
   const [submitting, setSubmitting] = useState(false)
+  const [openMenu, setOpenMenu] = useState<{ billId: number; trigger: 'context' | 'more' } | null>(
+    null
+  )
 
   useEffect(() => {
     fetch()
@@ -73,6 +78,7 @@ function BillsListPage(): React.JSX.Element {
     ],
     onClick: ({ key, domEvent }) => {
       domEvent.stopPropagation()
+      setOpenMenu(null)
       if (key === 'activate') handleActivate(bill)
       if (key === 'delete') handleDelete(bill)
     }
@@ -93,39 +99,79 @@ function BillsListPage(): React.JSX.Element {
         <Empty description={t('bills.empty')} />
       ) : (
         <List
-          grid={{ gutter: 16, column: 3 }}
           dataSource={bills}
           renderItem={(bill) => {
             const isActive = bill.status === 'active'
             return (
-              <List.Item>
-                <Dropdown trigger={['contextMenu']} menu={menuFor(bill)}>
-                  <Card
-                    hoverable
+              <List.Item style={{ padding: 0, border: 'none' }}>
+                <Dropdown
+                  trigger={['contextMenu']}
+                  menu={menuFor(bill)}
+                  open={openMenu?.billId === bill.id && openMenu.trigger === 'context'}
+                  onOpenChange={(next) =>
+                    setOpenMenu(next ? { billId: bill.id, trigger: 'context' } : null)
+                  }
+                >
+                  <div
                     onClick={() => navigate(`/bills/${bill.id}`)}
-                    extra={
-                      <Dropdown trigger={['click']} menu={menuFor(bill)}>
-                        <Button
-                          type="text"
-                          size="small"
-                          icon={<MoreOutlined />}
-                          onClick={(e) => e.stopPropagation()}
-                        />
-                      </Dropdown>
-                    }
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      width: '100%',
+                      padding: '16px 20px',
+                      marginBottom: 12,
+                      borderRadius: 8,
+                      background: token.colorBgContainer,
+                      border: `1px solid ${token.colorBorderSecondary}`,
+                      cursor: 'pointer',
+                      transition: 'background 0.2s'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = token.colorFillTertiary
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = token.colorBgContainer
+                    }}
                   >
-                    <Typography.Text strong>{bill.name}</Typography.Text>
-                    {isActive && (
-                      <Tag color="green" style={{ marginLeft: 8 }}>
-                        {t('bills.active')}
-                      </Tag>
-                    )}
                     <div>
-                      <Typography.Text type="secondary">
-                        {bill.startDate} ~ {bill.endDate}
-                      </Typography.Text>
+                      <div>
+                        <Typography.Text strong style={{ fontSize: 18 }}>
+                          {bill.name}
+                        </Typography.Text>
+                        {isActive && (
+                          <Tag color="green" style={{ marginLeft: 8 }}>
+                            {t('bills.active')}
+                          </Tag>
+                        )}
+                      </div>
+                      <div>
+                        <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                          {bill.startDate} ~ {bill.endDate}
+                        </Typography.Text>
+                      </div>
+                      <div>
+                        <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                          {t('bills.dayCount', { count: dayCount(bill) })}
+                        </Typography.Text>
+                      </div>
                     </div>
-                  </Card>
+                    <Dropdown
+                      trigger={['click']}
+                      menu={menuFor(bill)}
+                      open={openMenu?.billId === bill.id && openMenu.trigger === 'more'}
+                      onOpenChange={(next) =>
+                        setOpenMenu(next ? { billId: bill.id, trigger: 'more' } : null)
+                      }
+                    >
+                      <Button
+                        type="text"
+                        size="small"
+                        icon={<MoreOutlined />}
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    </Dropdown>
+                  </div>
                 </Dropdown>
               </List.Item>
             )

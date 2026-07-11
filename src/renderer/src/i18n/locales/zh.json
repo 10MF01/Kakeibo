@@ -33,6 +33,7 @@
     "create": "新建账单",
     "empty": "还没有账单，先创建一个吧",
     "active": "当前账单",
+    "dayCount": "共 {{count}} 天",
     "createFailed": "创建账单失败",
     "notFound": "账单不存在",
     "saveFailed": "保存失败",
@@ -144,7 +145,9 @@
   "settings": {
     "title": "设置",
     "language": "语言",
-    "languageDesc": "切换语言会同时切换金额显示的货币符号"
+    "languageDesc": "切换语言会同时切换金额显示的货币符号",
+    "sound": "音效",
+    "soundDesc": "记一笔收入/支出时播放提示音"
   },
   "calculator": {
     "title": "计算器"

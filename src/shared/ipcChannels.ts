@@ -3,7 +3,8 @@ export const IPC = {
     list: 'categories:list',
     create: 'categories:create',
     update: 'categories:update',
-    delete: 'categories:delete'
+    delete: 'categories:delete',
+    reorder: 'categories:reorder'
   },
   bills: {
     list: 'bills:list',

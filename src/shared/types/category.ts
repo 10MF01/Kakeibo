@@ -31,3 +31,8 @@ export interface CategoryUpdateInput {
 export interface CategoryListFilter {
   type?: CategoryType
 }
+
+export interface CategoryReorderItem {
+  id: number
+  sortOrder: number
+}

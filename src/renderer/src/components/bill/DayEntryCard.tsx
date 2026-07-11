@@ -58,8 +58,16 @@ function DayEntryCard({
       }
       extra={
         <Space size={12}>
-          {dayIncome > 0 && <Typography.Text type="success">{currency.format(dayIncome)}</Typography.Text>}
-          {dayExpense > 0 && <Typography.Text type="danger">{currency.format(dayExpense)}</Typography.Text>}
+          {dayIncome > 0 && (
+            <Typography.Text type="success" className="amount-cell">
+              {currency.format(dayIncome)}
+            </Typography.Text>
+          )}
+          {dayExpense > 0 && (
+            <Typography.Text type="danger" className="amount-cell">
+              {currency.format(dayExpense)}
+            </Typography.Text>
+          )}
           <Button size="small" type="link" icon={<PlusOutlined />} onClick={() => onAdd(date)}>
             {t('bills.detail.add')}
           </Button>
@@ -94,14 +102,16 @@ function DayEntryCard({
                   </Popconfirm>
                 ]}
               >
-                <Space>
-                  <Tag color={tx.type === 'income' ? 'green' : 'volcano'}>
-                    {tx.type === 'income' ? t('transaction.form.income') : t('transaction.form.expense')}
-                  </Tag>
-                  <span>{category ? categoryDisplayName(category, t) : '-'}</span>
-                  {tx.note && <Typography.Text type="secondary">{tx.note}</Typography.Text>}
-                </Space>
-                <span>{currency.format(tx.amount)}</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flex: 1 }}>
+                  <Space>
+                    <Tag color={tx.type === 'income' ? 'green' : 'volcano'}>
+                      {tx.type === 'income' ? t('transaction.form.income') : t('transaction.form.expense')}
+                    </Tag>
+                    <span>{category ? categoryDisplayName(category, t) : '-'}</span>
+                    {tx.note && <Typography.Text type="secondary">{tx.note}</Typography.Text>}
+                  </Space>
+                  <span className="amount-cell">{currency.format(tx.amount)}</span>
+                </div>
               </List.Item>
             )
           }}

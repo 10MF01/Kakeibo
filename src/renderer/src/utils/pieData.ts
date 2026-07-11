@@ -20,7 +20,7 @@ export function buildPieData(items: CategoryBreakdownItem[], t: TFunction): PieD
     return sorted.map((item) => ({
       name: breakdownItemDisplayName(item, t),
       value: toDisplayAmount(item.total),
-      color: colorForCategory(item.categoryId)
+      color: item.color ?? colorForCategory(item.categoryId)
     }))
   }
 
@@ -32,7 +32,7 @@ export function buildPieData(items: CategoryBreakdownItem[], t: TFunction): PieD
     ...head.map((item) => ({
       name: breakdownItemDisplayName(item, t),
       value: toDisplayAmount(item.total),
-      color: colorForCategory(item.categoryId)
+      color: item.color ?? colorForCategory(item.categoryId)
     })),
     { name: t('report.other'), value: toDisplayAmount(otherTotal), color: OTHER_SLICE_COLOR }
   ]

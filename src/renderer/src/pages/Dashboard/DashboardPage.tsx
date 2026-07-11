@@ -20,6 +20,7 @@ import { useBillStore } from '@renderer/store/useBillStore'
 import { useCategoryStore } from '@renderer/store/useCategoryStore'
 import { useCurrencyFormatter } from '@renderer/hooks/useCurrencyFormatter'
 import { categoryDisplayName } from '@renderer/utils/categoryName'
+import { dayCount } from '@renderer/utils/billDayCount'
 import type { Transaction } from '@shared/types/transaction'
 
 function DashboardPage(): React.JSX.Element {
@@ -89,11 +90,14 @@ function DashboardPage(): React.JSX.Element {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
           <Typography.Title level={3}>{t('dashboard.title')}</Typography.Title>
-          <Typography.Paragraph type="secondary">
+          <Typography.Paragraph type="secondary" style={{ marginBottom: 0 }}>
             {t('dashboard.currentBill', { name: activeBill.name })}
             {activeBill.name !== `${activeBill.startDate} ~ ${activeBill.endDate}` &&
               `（${activeBill.startDate} ~ ${activeBill.endDate}）`}
           </Typography.Paragraph>
+          <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+            {t('bills.dayCount', { count: dayCount(activeBill) })}
+          </Typography.Text>
         </div>
         <Button onClick={() => navigate(`/bills/${activeBill.id}`)}>{t('dashboard.goToBill')}</Button>
       </div>

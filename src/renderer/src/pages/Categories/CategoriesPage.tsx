@@ -7,6 +7,7 @@ import CategoryForm, { type CategoryFormValues } from '@renderer/components/cate
 import { useCategoryStore } from '@renderer/store/useCategoryStore'
 import { categoryDisplayName } from '@renderer/utils/categoryName'
 import type { Category, CategoryType } from '@shared/types/category'
+import { CATEGORY_COLOR_PALETTE } from '@shared/categoryPalette'
 import type { TFunction } from 'i18next'
 
 const ERROR_CODES = ['CATEGORY_DUPLICATE_NAME', 'CATEGORY_IN_USE', 'CATEGORY_NOT_FOUND'] as const
@@ -28,7 +29,7 @@ interface FormState {
 
 function CategoriesPage(): React.JSX.Element {
   const { t } = useTranslation()
-  const { categories, fetch, refresh } = useCategoryStore()
+  const { categories, fetch, refresh, reorder } = useCategoryStore()
   const [submitting, setSubmitting] = useState(false)
   const [formState, setFormState] = useState<FormState>({
     open: false,
@@ -42,6 +43,11 @@ function CategoriesPage(): React.JSX.Element {
 
   const expenseCategories = categories.filter((c) => c.type === 'expense')
   const incomeCategories = categories.filter((c) => c.type === 'income')
+
+  const nextColorFor = (type: CategoryType): string => {
+    const count = categories.filter((c) => c.type === type).length
+    return CATEGORY_COLOR_PALETTE[count % CATEGORY_COLOR_PALETTE.length]
+  }
 
   const openCreatePrimary = (type: CategoryType): void => {
     setFormState({ open: true, mode: 'create-primary', type })
@@ -106,6 +112,7 @@ function CategoriesPage(): React.JSX.Element {
               categories={expenseCategories}
               onEditPrimary={openEditPrimary}
               onDeletePrimary={handleDeletePrimary}
+              onReorder={reorder}
             />
           </Card>
         </Col>
@@ -126,6 +133,7 @@ function CategoriesPage(): React.JSX.Element {
               categories={incomeCategories}
               onEditPrimary={openEditPrimary}
               onDeletePrimary={handleDeletePrimary}
+              onReorder={reorder}
             />
           </Card>
         </Col>
@@ -136,9 +144,9 @@ function CategoriesPage(): React.JSX.Element {
           formState.mode === 'create-primary' ? t('categories.createPrimary') : t('categories.editTitle')
         }
         initialValues={
-          formState.category
+          formState.mode === 'edit-primary' && formState.category
             ? { name: categoryDisplayName(formState.category, t), color: formState.category.color }
-            : undefined
+            : { color: nextColorFor(formState.type) }
         }
         confirmLoading={submitting}
         onCancel={closeForm}

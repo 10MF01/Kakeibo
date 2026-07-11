@@ -33,6 +33,7 @@
     "create": "家計簿を新規作成",
     "empty": "まだ家計簿がありません。作成しましょう",
     "active": "現在の家計簿",
+    "dayCount": "合計{{count}}日間",
     "createFailed": "家計簿の作成に失敗しました",
     "notFound": "家計簿が見つかりません",
     "saveFailed": "保存に失敗しました",
@@ -144,7 +145,9 @@
   "settings": {
     "title": "設定",
     "language": "言語",
-    "languageDesc": "言語を切り替えると金額表示の通貨記号も切り替わります"
+    "languageDesc": "言語を切り替えると金額表示の通貨記号も切り替わります",
+    "sound": "効果音",
+    "soundDesc": "収入・支出を記録するときに効果音を再生します"
   },
   "calculator": {
     "title": "電卓"

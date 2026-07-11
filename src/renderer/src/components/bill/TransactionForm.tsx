@@ -94,7 +94,7 @@ function TransactionForm({
     >
       <Form form={form} layout="vertical">
         <Form.Item name="type" label={t('transaction.form.type')} rules={[{ required: true }]}>
-          <Radio.Group onChange={handleTypeChange}>
+          <Radio.Group className="type-toggle" onChange={handleTypeChange}>
             <Radio.Button value="expense">{t('transaction.form.expense')}</Radio.Button>
             <Radio.Button value="income">{t('transaction.form.income')}</Radio.Button>
           </Radio.Group>

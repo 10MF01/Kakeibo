@@ -4,6 +4,7 @@ import type {
   Category,
   CategoryCreateInput,
   CategoryListFilter,
+  CategoryReorderItem,
   CategoryUpdateInput
 } from '@shared/types/category'
 
@@ -52,12 +53,19 @@ export function createCategory(input: CategoryCreateInput): Category {
   const db = getDb()
 
   try {
+    const nextSortOrder =
+      input.sortOrder ??
+      ((
+        db
+          .prepare('SELECT COALESCE(MAX(sort_order), 0) + 1 as next FROM categories WHERE type = ?')
+          .get(input.type) as { next: number }
+      ).next)
     const result = db
       .prepare(
         `INSERT INTO categories (type, name, icon, color, sort_order, is_system)
          VALUES (?, ?, ?, ?, ?, 0)`
       )
-      .run(input.type, input.name, input.icon ?? null, input.color ?? null, input.sortOrder ?? 0)
+      .run(input.type, input.name, input.icon ?? null, input.color ?? null, nextSortOrder)
     const row = db
       .prepare('SELECT * FROM categories WHERE id = ?')
       .get(result.lastInsertRowid) as CategoryRow
@@ -116,6 +124,15 @@ export function updateCategory(id: number, input: CategoryUpdateInput): Category
 
   const row = db.prepare('SELECT * FROM categories WHERE id = ?').get(id) as CategoryRow
   return rowToCategory(row)
+}
+
+export function reorderCategories(updates: CategoryReorderItem[]): void {
+  const db = getDb()
+  const stmt = db.prepare("UPDATE categories SET sort_order = ?, updated_at = datetime('now') WHERE id = ?")
+  const run = db.transaction((items: CategoryReorderItem[]) => {
+    for (const item of items) stmt.run(item.sortOrder, item.id)
+  })
+  run(updates)
 }
 
 export function deleteCategory(id: number): void {

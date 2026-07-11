@@ -2,6 +2,7 @@ import { IPC } from '@shared/ipcChannels'
 import type {
   CategoryCreateInput,
   CategoryListFilter,
+  CategoryReorderItem,
   CategoryUpdateInput
 } from '@shared/types/category'
 import { handle } from './ipcHandle'
@@ -18,4 +19,7 @@ export function registerCategoryHandlers(): void {
     categoryService.updateCategory(id, input)
   )
   handle(IPC.categories.delete, (id: number) => categoryService.deleteCategory(id))
+  handle(IPC.categories.reorder, (updates: CategoryReorderItem[]) =>
+    categoryService.reorderCategories(updates)
+  )
 }

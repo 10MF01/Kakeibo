@@ -34,11 +34,17 @@ const KEY_OPERATORS: Record<string, Operator> = {
 
 function CalculatorPopover({ open }: CalculatorPopoverProps): React.JSX.Element {
   const [display, setDisplay] = useState('0')
+  const [expression, setExpression] = useState('')
+  const [justEvaluated, setJustEvaluated] = useState(false)
   const [previousValue, setPreviousValue] = useState<number | null>(null)
   const [pendingOperator, setPendingOperator] = useState<Operator | null>(null)
   const [waitingForOperand, setWaitingForOperand] = useState(false)
 
   const inputDigit = (digit: string): void => {
+    if (justEvaluated) {
+      setExpression('')
+      setJustEvaluated(false)
+    }
     if (waitingForOperand) {
       setDisplay(digit)
       setWaitingForOperand(false)
@@ -48,6 +54,10 @@ function CalculatorPopover({ open }: CalculatorPopoverProps): React.JSX.Element 
   }
 
   const inputDecimal = (): void => {
+    if (justEvaluated) {
+      setExpression('')
+      setJustEvaluated(false)
+    }
     if (waitingForOperand) {
       setDisplay('0.')
       setWaitingForOperand(false)
@@ -60,6 +70,8 @@ function CalculatorPopover({ open }: CalculatorPopoverProps): React.JSX.Element 
 
   const clear = (): void => {
     setDisplay('0')
+    setExpression('')
+    setJustEvaluated(false)
     setPreviousValue(null)
     setPendingOperator(null)
     setWaitingForOperand(false)
@@ -72,12 +84,17 @@ function CalculatorPopover({ open }: CalculatorPopoverProps): React.JSX.Element 
 
   const applyOperator = (op: Operator): void => {
     const inputValue = parseFloat(display)
+    setJustEvaluated(false)
     if (previousValue === null) {
       setPreviousValue(inputValue)
+      setExpression(`${display} ${op} `)
     } else if (pendingOperator && !waitingForOperand) {
       const result = calculate(previousValue, inputValue, pendingOperator)
       setDisplay(formatResult(result))
       setPreviousValue(result)
+      setExpression((prev) => `${prev}${display} ${op} `)
+    } else {
+      setExpression((prev) => prev.replace(/[+\-×÷] $/, `${op} `))
     }
     setPendingOperator(op)
     setWaitingForOperand(true)
@@ -87,10 +104,12 @@ function CalculatorPopover({ open }: CalculatorPopoverProps): React.JSX.Element 
     const inputValue = parseFloat(display)
     if (pendingOperator && previousValue !== null) {
       const result = calculate(previousValue, inputValue, pendingOperator)
+      setExpression(`${expression}${display} =`)
       setDisplay(formatResult(result))
       setPreviousValue(null)
       setPendingOperator(null)
       setWaitingForOperand(true)
+      setJustEvaluated(true)
     }
   }
 
@@ -126,7 +145,7 @@ function CalculatorPopover({ open }: CalculatorPopoverProps): React.JSX.Element 
     return () => window.removeEventListener('keydown', handleKeyDown)
     // Re-bind every render so the closures above see current display/operator state.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, display, previousValue, pendingOperator, waitingForOperand])
+  }, [open, display, expression, justEvaluated, previousValue, pendingOperator, waitingForOperand])
 
   const buttons: { label: string; onClick: () => void; primary?: boolean; span?: number }[] = [
     { label: 'C', onClick: clear },
@@ -154,18 +173,37 @@ function CalculatorPopover({ open }: CalculatorPopoverProps): React.JSX.Element 
       <div
         style={{
           textAlign: 'right',
-          fontSize: 24,
-          fontVariantNumeric: 'tabular-nums',
-          padding: '12px 10px',
+          padding: '10px 10px 6px',
           marginBottom: 8,
           background: '#f5f5f5',
           borderRadius: 6,
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          whiteSpace: 'nowrap'
+          overflow: 'hidden'
         }}
       >
-        {display}
+        <div
+          style={{
+            fontSize: 13,
+            color: 'rgba(0, 0, 0, 0.45)',
+            fontVariantNumeric: 'tabular-nums',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            minHeight: 18
+          }}
+        >
+          {expression || ' '}
+        </div>
+        <div
+          style={{
+            fontSize: 24,
+            fontVariantNumeric: 'tabular-nums',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap'
+          }}
+        >
+          {display}
+        </div>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6 }}>
         {buttons.map((btn) => (

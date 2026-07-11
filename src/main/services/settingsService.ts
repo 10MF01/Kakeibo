@@ -2,22 +2,38 @@ import { getDb } from '../db/connection'
 import type { AppLanguage, AppSettings } from '@shared/types/settings'
 
 const DEFAULT_LANGUAGE: AppLanguage = 'zh'
+const DEFAULT_SOUND_ENABLED = true
 
-export function getSettings(): AppSettings {
+function getValue(key: string): string | undefined {
   const db = getDb()
-  const row = db.prepare("SELECT value FROM app_settings WHERE key = 'language'").get() as
+  const row = db.prepare('SELECT value FROM app_settings WHERE key = ?').get(key) as
     | { value: string }
     | undefined
-  return { language: (row?.value as AppLanguage) ?? DEFAULT_LANGUAGE }
+  return row?.value
+}
+
+function setValue(key: string, value: string): void {
+  const db = getDb()
+  db.prepare(
+    `INSERT INTO app_settings (key, value) VALUES (?, ?)
+     ON CONFLICT(key) DO UPDATE SET value = excluded.value`
+  ).run(key, value)
+}
+
+export function getSettings(): AppSettings {
+  const soundEnabledValue = getValue('soundEnabled')
+  return {
+    language: (getValue('language') as AppLanguage) ?? DEFAULT_LANGUAGE,
+    soundEnabled: soundEnabledValue === undefined ? DEFAULT_SOUND_ENABLED : soundEnabledValue === '1'
+  }
 }
 
 export function updateSettings(input: Partial<AppSettings>): AppSettings {
-  const db = getDb()
   if (input.language !== undefined) {
-    db.prepare(
-      `INSERT INTO app_settings (key, value) VALUES ('language', ?)
-       ON CONFLICT(key) DO UPDATE SET value = excluded.value`
-    ).run(input.language)
+    setValue('language', input.language)
+  }
+  if (input.soundEnabled !== undefined) {
+    setValue('soundEnabled', input.soundEnabled ? '1' : '0')
   }
   return getSettings()
 }

@@ -31,6 +31,10 @@ function App(): React.JSX.Element {
           colorError: '#F5222D',
           colorWarning: '#FAAD14',
           colorInfo: '#1677FF',
+          colorText: 'rgba(0, 0, 0, 0.95)',
+          colorTextSecondary: 'rgba(0, 0, 0, 0.85)',
+          colorTextTertiary: 'rgba(0, 0, 0, 0.68)',
+          colorBgLayout: '#e9ece9',
           borderRadius: 8,
           fontFamily:
             '"Segoe UI", "PingFang SC", "Hiragino Sans", "Noto Sans JP", sans-serif'

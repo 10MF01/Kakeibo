@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { Button, Space, Spin, Statistic, Typography, message, theme } from 'antd'
+import { Button, Card, Col, Row, Spin, Statistic, Typography, message, theme } from 'antd'
 import { FileTextOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import dayjs from 'dayjs'
@@ -9,7 +9,10 @@ import TransactionForm, {
   type TransactionFormValues
 } from '@renderer/components/bill/TransactionForm'
 import { useCategoryStore } from '@renderer/store/useCategoryStore'
+import { useSettingsStore } from '@renderer/store/useSettingsStore'
 import { useCurrencyFormatter } from '@renderer/hooks/useCurrencyFormatter'
+import { playExpenseSound, playIncomeSound } from '@renderer/utils/sound'
+import { dayCount } from '@renderer/utils/billDayCount'
 import type { Bill } from '@shared/types/bill'
 import type { Transaction } from '@shared/types/transaction'
 
@@ -36,6 +39,7 @@ function BillDetailPage(): React.JSX.Element {
   const { billId } = useParams<{ billId: string }>()
   const navigate = useNavigate()
   const { categories, fetch: fetchCategories } = useCategoryStore()
+  const soundEnabled = useSettingsStore((s) => s.soundEnabled)
   const currency = useCurrencyFormatter()
   const [bill, setBill] = useState<Bill | null>(null)
   const [transactions, setTransactions] = useState<Transaction[]>([])
@@ -103,6 +107,10 @@ function BillDetailPage(): React.JSX.Element {
         await window.api.transactions.update(formState.editing.id, values)
       } else {
         await window.api.transactions.create({ ...values, billId: id, date: formState.date })
+        if (soundEnabled) {
+          if (values.type === 'income') playIncomeSound()
+          else playExpenseSound()
+        }
       }
       await loadData()
       closeForm()
@@ -131,31 +139,46 @@ function BillDetailPage(): React.JSX.Element {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
           <Typography.Title level={3}>{bill.name}</Typography.Title>
-          <Typography.Paragraph type="secondary">
+          <Typography.Paragraph type="secondary" style={{ marginBottom: 0 }}>
             {bill.startDate} ~ {bill.endDate}
           </Typography.Paragraph>
+          <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+            {t('bills.dayCount', { count: dayCount(bill) })}
+          </Typography.Text>
         </div>
         <Button icon={<FileTextOutlined />} onClick={() => navigate(`/bills/${id}/report`)}>
           {t('bills.detail.viewReport')}
         </Button>
       </div>
-      <Space size={48} style={{ marginBottom: 24 }}>
-        <Statistic
-          title={t('bills.detail.income')}
-          value={currency.format(totalIncome)}
-          valueStyle={{ color: token.colorSuccess }}
-        />
-        <Statistic
-          title={t('bills.detail.expense')}
-          value={currency.format(totalExpense)}
-          valueStyle={{ color: token.colorError }}
-        />
-        <Statistic
-          title={t('bills.detail.balance')}
-          value={currency.format(balance)}
-          valueStyle={{ color: balance >= 0 ? token.colorSuccess : token.colorError }}
-        />
-      </Space>
+      <Row gutter={24} style={{ marginBottom: 24 }}>
+        <Col span={8}>
+          <Card>
+            <Statistic
+              title={t('bills.detail.income')}
+              value={currency.format(totalIncome)}
+              valueStyle={{ color: token.colorSuccess }}
+            />
+          </Card>
+        </Col>
+        <Col span={8}>
+          <Card>
+            <Statistic
+              title={t('bills.detail.expense')}
+              value={currency.format(totalExpense)}
+              valueStyle={{ color: token.colorError }}
+            />
+          </Card>
+        </Col>
+        <Col span={8}>
+          <Card>
+            <Statistic
+              title={t('bills.detail.balance')}
+              value={currency.format(balance)}
+              valueStyle={{ color: balance >= 0 ? token.colorSuccess : token.colorError }}
+            />
+          </Card>
+        </Col>
+      </Row>
       {dates.map((date) => (
         <DayEntryCard
           key={date}
