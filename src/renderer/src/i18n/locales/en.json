@@ -1,5 +1,9 @@
 {
   "app": { "title": "Kakeibo" },
+  "common": {
+    "loadFailed": "Failed to load. Please retry.",
+    "retry": "Retry"
+  },
   "weekday": {
     "sun": "Sun",
     "mon": "Mon",

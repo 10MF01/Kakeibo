@@ -109,10 +109,6 @@ export function updateBill(id: number, input: BillUpdateInput): Bill {
     fields.push('end_date = ?')
     params.push(input.endDate)
   }
-  if (input.status !== undefined) {
-    fields.push('status = ?')
-    params.push(input.status)
-  }
   fields.push("updated_at = datetime('now')")
   params.push(id)
 

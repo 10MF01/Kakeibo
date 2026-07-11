@@ -1,5 +1,9 @@
 {
   "app": { "title": "Kakeibo" },
+  "common": {
+    "loadFailed": "読み込みに失敗しました。再試行してください",
+    "retry": "再試行"
+  },
   "weekday": {
     "sun": "日",
     "mon": "月",

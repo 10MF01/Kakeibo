@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
-import { ConfigProvider, Spin } from 'antd'
+import { ConfigProvider, Spin, Button } from 'antd'
+import { useTranslation } from 'react-i18next'
 import zhCN from 'antd/locale/zh_CN'
 import jaJP from 'antd/locale/ja_JP'
 import enUS from 'antd/locale/en_US'
@@ -15,7 +16,8 @@ const ANTD_LOCALE: Record<AppLanguage, typeof zhCN> = {
 }
 
 function App(): React.JSX.Element {
-  const { language, loaded, hydrate } = useSettingsStore()
+  const { t } = useTranslation()
+  const { language, loaded, hydrateFailed, hydrate } = useSettingsStore()
 
   useEffect(() => {
     hydrate()
@@ -44,8 +46,24 @@ function App(): React.JSX.Element {
       {loaded ? (
         <AppRouter />
       ) : (
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-          <Spin size="large" />
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 16,
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '100vh'
+          }}
+        >
+          {hydrateFailed ? (
+            <>
+              <span>{t('common.loadFailed')}</span>
+              <Button onClick={() => hydrate()}>{t('common.retry')}</Button>
+            </>
+          ) : (
+            <Spin size="large" />
+          )}
         </div>
       )}
     </ConfigProvider>

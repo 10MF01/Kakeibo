@@ -1,4 +1,6 @@
 import { create } from 'zustand'
+import { message } from 'antd'
+import i18n from '@renderer/i18n'
 import type { Category } from '@shared/types/category'
 
 interface CategoryState {
@@ -17,8 +19,13 @@ export const useCategoryStore = create<CategoryState>((set, get) => ({
   fetch: async () => {
     if (get().loaded || get().loading) return
     set({ loading: true })
-    const categories = await window.api.categories.list()
-    set({ categories, loading: false, loaded: true })
+    try {
+      const categories = await window.api.categories.list()
+      set({ categories, loading: false, loaded: true })
+    } catch (err) {
+      set({ loading: false })
+      message.error(err instanceof Error ? err.message : i18n.t('common.loadFailed'))
+    }
   },
   refresh: async () => {
     set({ loading: true })

@@ -20,5 +20,4 @@ export interface BillUpdateInput {
   name?: string
   startDate?: string
   endDate?: string
-  status?: BillStatus
 }

@@ -1,4 +1,6 @@
 import { create } from 'zustand'
+import { message } from 'antd'
+import i18n from '@renderer/i18n'
 import type { Bill } from '@shared/types/bill'
 
 interface BillState {
@@ -21,11 +23,16 @@ export const useBillStore = create<BillState>((set, get) => ({
   fetch: async () => {
     if (get().loaded || get().loading) return
     set({ loading: true })
-    const [bills, activeBill] = await Promise.all([
-      window.api.bills.list(),
-      window.api.bills.getActive()
-    ])
-    set({ bills, activeBill, loading: false, loaded: true })
+    try {
+      const [bills, activeBill] = await Promise.all([
+        window.api.bills.list(),
+        window.api.bills.getActive()
+      ])
+      set({ bills, activeBill, loading: false, loaded: true })
+    } catch (err) {
+      set({ loading: false })
+      message.error(err instanceof Error ? err.message : i18n.t('common.loadFailed'))
+    }
   },
   refresh: async () => {
     set({ loading: true })
