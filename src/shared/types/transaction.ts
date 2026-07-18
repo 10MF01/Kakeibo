@@ -2,6 +2,7 @@ import type { CategoryType } from './category'
 
 export interface Transaction {
   id: number
+  uuid: string
   billId: number
   date: string
   type: CategoryType
@@ -11,6 +12,7 @@ export interface Transaction {
   note: string | null
   createdAt: string
   updatedAt: string
+  deletedAt: string | null
 }
 
 export interface TransactionCreateInput {

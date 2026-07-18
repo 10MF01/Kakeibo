@@ -2,12 +2,14 @@ export type BillStatus = 'active' | 'closed'
 
 export interface Bill {
   id: number
+  uuid: string
   name: string
   startDate: string
   endDate: string
   status: BillStatus
   createdAt: string
   updatedAt: string
+  deletedAt: string | null
 }
 
 export interface BillCreateInput {

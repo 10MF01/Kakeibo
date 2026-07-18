@@ -5,4 +5,6 @@ export interface AppSettings {
   soundEnabled: boolean
   defaultExpenseCategoryId: number | null
   defaultIncomeCategoryId: number | null
+  syncEndpointUrl: string | null
+  lastSyncedAt: string | null
 }

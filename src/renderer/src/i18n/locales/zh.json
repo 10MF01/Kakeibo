@@ -88,7 +88,7 @@
     "createPrimary": "新建分类",
     "empty": "暂无分类",
     "deleteConfirmTitle": "删除该分类？",
-    "deleteConfirmDesc": "若存在关联的流水记录将无法删除",
+    "deleteConfirmDesc": "删除后将不再出现在分类列表中，但已有的流水记录仍会正常显示该分类名称",
     "editTitle": "编辑分类",
     "form": {
       "name": "名称",
@@ -153,7 +153,17 @@
     "sound": "音效",
     "soundDesc": "记一笔收入/支出时播放提示音",
     "defaultCategory": "默认分类",
-    "defaultCategoryDesc": "设置后，新增收入/支出时会自动预选对应的分类"
+    "defaultCategoryDesc": "设置后，新增收入/支出时会自动预选对应的分类",
+    "sync": "同步",
+    "syncDesc": "填入你部署的 Google Apps Script 同步地址，点击“立即同步”即可与手机端互通数据。",
+    "syncEndpoint": "同步地址",
+    "syncEndpointPlaceholder": "粘贴 Apps Script 网址，例如 https://script.google.com/macros/s/xxx/exec",
+    "syncNow": "立即同步",
+    "syncing": "同步中…",
+    "lastSyncedAt": "上次同步：{{time}}",
+    "neverSynced": "还没有同步过",
+    "syncSuccess": "同步完成，导入 {{categories}} 个分类、{{bills}} 个账单、{{transactions}} 条记录",
+    "syncEndpointRequired": "请先填写并保存同步地址"
   },
   "calculator": {
     "title": "计算器"

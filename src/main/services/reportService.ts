@@ -23,7 +23,7 @@ function aggregateByType(
       `SELECT c.id as category_id, c.name as name, c.name_key as name_key, c.color as color, SUM(t.amount) as total, COUNT(*) as count
        FROM transactions t
        JOIN categories c ON t.category_id = c.id
-       WHERE t.bill_id = ? AND t.type = ?
+       WHERE t.bill_id = ? AND t.type = ? AND t.deleted_at IS NULL
        GROUP BY t.category_id
        ORDER BY total DESC`
     )

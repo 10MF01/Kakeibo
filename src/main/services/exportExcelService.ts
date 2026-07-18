@@ -138,7 +138,7 @@ async function buildExcelBuffer(billId: number, language: AppLanguage): Promise<
       `SELECT t.date, t.type, c.name as category, c.name_key as category_name_key, t.amount, t.note
        FROM transactions t
        JOIN categories c ON t.category_id = c.id
-       WHERE t.bill_id = ?
+       WHERE t.bill_id = ? AND t.deleted_at IS NULL
        ORDER BY t.date, t.id`
     )
     .all(billId) as TransactionRow[]

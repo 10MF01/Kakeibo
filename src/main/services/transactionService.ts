@@ -1,4 +1,5 @@
 import type Database from 'better-sqlite3'
+import { randomUUID } from 'crypto'
 import { getDb } from '../db/connection'
 import { AppError } from '@shared/types/error'
 import type {
@@ -11,6 +12,7 @@ import { getBill } from './billService'
 
 interface TransactionRow {
   id: number
+  uuid: string
   bill_id: number
   date: string
   type: CategoryType
@@ -19,6 +21,7 @@ interface TransactionRow {
   note: string | null
   created_at: string
   updated_at: string
+  deleted_at: string | null
 }
 
 interface CategoryRow {
@@ -29,6 +32,7 @@ interface CategoryRow {
 function rowToTransaction(row: TransactionRow): Transaction {
   return {
     id: row.id,
+    uuid: row.uuid,
     billId: row.bill_id,
     date: row.date,
     type: row.type,
@@ -36,7 +40,8 @@ function rowToTransaction(row: TransactionRow): Transaction {
     amount: row.amount,
     note: row.note,
     createdAt: row.created_at,
-    updatedAt: row.updated_at
+    updatedAt: row.updated_at,
+    deletedAt: row.deleted_at
   }
 }
 
@@ -68,7 +73,7 @@ function validateDateInBillRange(billId: number, date: string): void {
 export function listTransactionsByBill(billId: number): Transaction[] {
   const db = getDb()
   const rows = db
-    .prepare('SELECT * FROM transactions WHERE bill_id = ? ORDER BY date, id')
+    .prepare('SELECT * FROM transactions WHERE bill_id = ? AND deleted_at IS NULL ORDER BY date, id')
     .all(billId) as TransactionRow[]
   return rows.map(rowToTransaction)
 }
@@ -76,7 +81,9 @@ export function listTransactionsByBill(billId: number): Transaction[] {
 export function listTransactionsByDate(billId: number, date: string): Transaction[] {
   const db = getDb()
   const rows = db
-    .prepare('SELECT * FROM transactions WHERE bill_id = ? AND date = ? ORDER BY id')
+    .prepare(
+      'SELECT * FROM transactions WHERE bill_id = ? AND date = ? AND deleted_at IS NULL ORDER BY id'
+    )
     .all(billId, date) as TransactionRow[]
   return rows.map(rowToTransaction)
 }
@@ -88,10 +95,18 @@ export function createTransaction(input: TransactionCreateInput): Transaction {
 
   const result = db
     .prepare(
-      `INSERT INTO transactions (bill_id, date, type, category_id, amount, note)
-       VALUES (?, ?, ?, ?, ?, ?)`
+      `INSERT INTO transactions (uuid, bill_id, date, type, category_id, amount, note)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`
     )
-    .run(input.billId, input.date, input.type, input.categoryId, input.amount, input.note ?? null)
+    .run(
+      randomUUID(),
+      input.billId,
+      input.date,
+      input.type,
+      input.categoryId,
+      input.amount,
+      input.note ?? null
+    )
   const row = db
     .prepare('SELECT * FROM transactions WHERE id = ?')
     .get(result.lastInsertRowid) as TransactionRow
@@ -137,5 +152,7 @@ export function deleteTransaction(id: number): void {
   if (!existing) {
     throw new AppError('TRANSACTION_NOT_FOUND', `transaction ${id} not found`)
   }
-  db.prepare('DELETE FROM transactions WHERE id = ?').run(id)
+  db.prepare(
+    "UPDATE transactions SET deleted_at = datetime('now'), updated_at = datetime('now') WHERE id = ?"
+  ).run(id)
 }

@@ -2,6 +2,7 @@ export type CategoryType = 'income' | 'expense'
 
 export interface Category {
   id: number
+  uuid: string
   type: CategoryType
   name: string
   nameKey: string | null
@@ -11,6 +12,7 @@ export interface Category {
   isSystem: boolean
   createdAt: string
   updatedAt: string
+  deletedAt: string | null
 }
 
 export interface CategoryCreateInput {

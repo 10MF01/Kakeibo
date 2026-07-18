@@ -1,3 +1,4 @@
+import { randomUUID } from 'crypto'
 import { getDb } from '../db/connection'
 import { AppError } from '@shared/types/error'
 import type {
@@ -10,6 +11,7 @@ import type {
 
 interface CategoryRow {
   id: number
+  uuid: string
   type: 'income' | 'expense'
   name: string
   name_key: string | null
@@ -19,11 +21,13 @@ interface CategoryRow {
   is_system: number
   created_at: string
   updated_at: string
+  deleted_at: string | null
 }
 
 function rowToCategory(row: CategoryRow): Category {
   return {
     id: row.id,
+    uuid: row.uuid,
     type: row.type,
     name: row.name,
     nameKey: row.name_key,
@@ -32,16 +36,17 @@ function rowToCategory(row: CategoryRow): Category {
     sortOrder: row.sort_order,
     isSystem: !!row.is_system,
     createdAt: row.created_at,
-    updatedAt: row.updated_at
+    updatedAt: row.updated_at,
+    deletedAt: row.deleted_at
   }
 }
 
 export function listCategories(filter?: CategoryListFilter): Category[] {
   const db = getDb()
-  let sql = 'SELECT * FROM categories'
+  let sql = 'SELECT * FROM categories WHERE deleted_at IS NULL'
   const params: unknown[] = []
   if (filter?.type) {
-    sql += ' WHERE type = ?'
+    sql += ' AND type = ?'
     params.push(filter.type)
   }
   sql += ' ORDER BY sort_order, id'
@@ -57,15 +62,24 @@ export function createCategory(input: CategoryCreateInput): Category {
       input.sortOrder ??
       ((
         db
-          .prepare('SELECT COALESCE(MAX(sort_order), 0) + 1 as next FROM categories WHERE type = ?')
+          .prepare(
+            'SELECT COALESCE(MAX(sort_order), 0) + 1 as next FROM categories WHERE type = ? AND deleted_at IS NULL'
+          )
           .get(input.type) as { next: number }
       ).next)
     const result = db
       .prepare(
-        `INSERT INTO categories (type, name, icon, color, sort_order, is_system)
-         VALUES (?, ?, ?, ?, ?, 0)`
+        `INSERT INTO categories (uuid, type, name, icon, color, sort_order, is_system)
+         VALUES (?, ?, ?, ?, ?, ?, 0)`
       )
-      .run(input.type, input.name, input.icon ?? null, input.color ?? null, nextSortOrder)
+      .run(
+        randomUUID(),
+        input.type,
+        input.name,
+        input.icon ?? null,
+        input.color ?? null,
+        nextSortOrder
+      )
     const row = db
       .prepare('SELECT * FROM categories WHERE id = ?')
       .get(result.lastInsertRowid) as CategoryRow
@@ -144,12 +158,9 @@ export function deleteCategory(id: number): void {
     throw new AppError('CATEGORY_NOT_FOUND', `category ${id} not found`)
   }
 
-  const txCount = db
-    .prepare('SELECT COUNT(*) as c FROM transactions WHERE category_id = ?')
-    .get(id) as { c: number }
-  if (txCount.c > 0) {
-    throw new AppError('CATEGORY_IN_USE', 'category is referenced by existing transactions')
-  }
-
-  db.prepare('DELETE FROM categories WHERE id = ?').run(id)
+  // Soft delete: the row stays (so its uuid keeps meaning across sync, and any historical
+  // transactions can still resolve its name via the join), just hidden from lists/pickers.
+  db.prepare(
+    "UPDATE categories SET deleted_at = datetime('now'), updated_at = datetime('now') WHERE id = ?"
+  ).run(id)
 }

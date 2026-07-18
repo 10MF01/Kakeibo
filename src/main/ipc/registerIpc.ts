@@ -3,6 +3,7 @@ import { registerBillHandlers } from './bills.handlers'
 import { registerTransactionHandlers } from './transactions.handlers'
 import { registerSettingsHandlers } from './settings.handlers'
 import { registerReportHandlers } from './reports.handlers'
+import { registerSyncHandlers } from './sync.handlers'
 
 export function registerIpc(): void {
   registerCategoryHandlers()
@@ -10,4 +11,5 @@ export function registerIpc(): void {
   registerTransactionHandlers()
   registerSettingsHandlers()
   registerReportHandlers()
+  registerSyncHandlers()
 }

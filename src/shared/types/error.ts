@@ -7,6 +7,7 @@ export type AppErrorCode =
   | 'TRANSACTION_NOT_FOUND'
   | 'TRANSACTION_DATE_OUT_OF_RANGE'
   | 'TRANSACTION_CATEGORY_TYPE_MISMATCH'
+  | 'SYNC_FOLDER_NOT_SET'
   | 'UNKNOWN'
 
 export class AppError extends Error {

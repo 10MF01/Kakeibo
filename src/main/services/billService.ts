@@ -1,27 +1,32 @@
 import dayjs from 'dayjs'
+import { randomUUID } from 'crypto'
 import { getDb } from '../db/connection'
 import { AppError } from '@shared/types/error'
 import type { Bill, BillCreateInput, BillUpdateInput } from '@shared/types/bill'
 
 interface BillRow {
   id: number
+  uuid: string
   name: string
   start_date: string
   end_date: string
   status: 'active' | 'closed'
   created_at: string
   updated_at: string
+  deleted_at: string | null
 }
 
 function rowToBill(row: BillRow): Bill {
   return {
     id: row.id,
+    uuid: row.uuid,
     name: row.name,
     startDate: row.start_date,
     endDate: row.end_date,
     status: row.status,
     createdAt: row.created_at,
-    updatedAt: row.updated_at
+    updatedAt: row.updated_at,
+    deletedAt: row.deleted_at
   }
 }
 
@@ -43,7 +48,9 @@ function validateRange(startDate: string, endDate: string): void {
 
 export function listBills(): Bill[] {
   const db = getDb()
-  const rows = db.prepare('SELECT * FROM bills ORDER BY start_date DESC').all() as BillRow[]
+  const rows = db
+    .prepare('SELECT * FROM bills WHERE deleted_at IS NULL ORDER BY start_date DESC')
+    .all() as BillRow[]
   return rows.map(rowToBill)
 }
 
@@ -58,9 +65,9 @@ export function getBill(id: number): Bill {
 
 export function getActiveBill(): Bill | null {
   const db = getDb()
-  const row = db.prepare("SELECT * FROM bills WHERE status = 'active' LIMIT 1").get() as
-    | BillRow
-    | undefined
+  const row = db
+    .prepare("SELECT * FROM bills WHERE status = 'active' AND deleted_at IS NULL LIMIT 1")
+    .get() as BillRow | undefined
   return row ? rowToBill(row) : null
 }
 
@@ -68,11 +75,15 @@ export function createBill(input: BillCreateInput): Bill {
   validateRange(input.startDate, input.endDate)
   const db = getDb()
   const name = input.name?.trim() || `${input.startDate} ~ ${input.endDate}`
-  const hasActiveBill = db.prepare("SELECT 1 FROM bills WHERE status = 'active' LIMIT 1").get()
+  const hasActiveBill = db
+    .prepare("SELECT 1 FROM bills WHERE status = 'active' AND deleted_at IS NULL LIMIT 1")
+    .get()
   const status: 'active' | 'closed' = hasActiveBill ? 'closed' : 'active'
   const result = db
-    .prepare('INSERT INTO bills (name, start_date, end_date, status) VALUES (?, ?, ?, ?)')
-    .run(name, input.startDate, input.endDate, status)
+    .prepare(
+      'INSERT INTO bills (uuid, name, start_date, end_date, status) VALUES (?, ?, ?, ?, ?)'
+    )
+    .run(randomUUID(), name, input.startDate, input.endDate, status)
   return getBill(result.lastInsertRowid as number)
 }
 
@@ -119,5 +130,16 @@ export function updateBill(id: number, input: BillUpdateInput): Bill {
 export function deleteBill(id: number): void {
   const db = getDb()
   getBill(id)
-  db.prepare('DELETE FROM bills WHERE id = ?').run(id)
+  // Soft delete: transactions.bill_id is ON DELETE CASCADE, but that only fires on a physical
+  // DELETE — since this bill row isn't actually removed, its transactions have to be soft
+  // deleted explicitly too, or they'd keep showing up under a bill that looks gone everywhere else.
+  const run = db.transaction((billId: number) => {
+    db.prepare("UPDATE bills SET deleted_at = datetime('now'), updated_at = datetime('now') WHERE id = ?").run(
+      billId
+    )
+    db.prepare(
+      "UPDATE transactions SET deleted_at = datetime('now'), updated_at = datetime('now') WHERE bill_id = ? AND deleted_at IS NULL"
+    ).run(billId)
+  })
+  run(id)
 }

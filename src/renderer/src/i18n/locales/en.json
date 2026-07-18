@@ -88,7 +88,7 @@
     "createPrimary": "New category",
     "empty": "No categories yet",
     "deleteConfirmTitle": "Delete this category?",
-    "deleteConfirmDesc": "Cannot be deleted while it has linked transactions",
+    "deleteConfirmDesc": "It will no longer appear in the category list, but existing transactions will still show this category's name",
     "editTitle": "Edit category",
     "form": {
       "name": "Name",
@@ -153,7 +153,17 @@
     "sound": "Sound effects",
     "soundDesc": "Play a sound when recording income or expense",
     "defaultCategory": "Default category",
-    "defaultCategoryDesc": "When set, new income/expense entries will automatically preselect the matching category"
+    "defaultCategoryDesc": "When set, new income/expense entries will automatically preselect the matching category",
+    "sync": "Sync",
+    "syncDesc": "Enter your deployed Google Apps Script sync address, then tap \"Sync now\" to share data with the mobile app.",
+    "syncEndpoint": "Sync address",
+    "syncEndpointPlaceholder": "Paste the Apps Script URL, e.g. https://script.google.com/macros/s/xxx/exec",
+    "syncNow": "Sync now",
+    "syncing": "Syncing…",
+    "lastSyncedAt": "Last synced: {{time}}",
+    "neverSynced": "Never synced yet",
+    "syncSuccess": "Sync complete — imported {{categories}} categories, {{bills}} bills, {{transactions}} transactions",
+    "syncEndpointRequired": "Please enter and save a sync address first"
   },
   "calculator": {
     "title": "Calculator"

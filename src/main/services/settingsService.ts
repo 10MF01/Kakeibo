@@ -29,13 +29,24 @@ function setNullableIdValue(key: string, value: number | null): void {
   setValue(key, value === null ? '' : String(value))
 }
 
+function getNullableStringValue(key: string): string | null {
+  const value = getValue(key)
+  return value === undefined || value === '' ? null : value
+}
+
+function setNullableStringValue(key: string, value: string | null): void {
+  setValue(key, value ?? '')
+}
+
 export function getSettings(): AppSettings {
   const soundEnabledValue = getValue('soundEnabled')
   return {
     language: (getValue('language') as AppLanguage) ?? DEFAULT_LANGUAGE,
     soundEnabled: soundEnabledValue === undefined ? DEFAULT_SOUND_ENABLED : soundEnabledValue === '1',
     defaultExpenseCategoryId: getNullableIdValue('defaultExpenseCategoryId'),
-    defaultIncomeCategoryId: getNullableIdValue('defaultIncomeCategoryId')
+    defaultIncomeCategoryId: getNullableIdValue('defaultIncomeCategoryId'),
+    syncEndpointUrl: getNullableStringValue('syncEndpointUrl'),
+    lastSyncedAt: getNullableStringValue('lastSyncedAt')
   }
 }
 
@@ -51,6 +62,12 @@ export function updateSettings(input: Partial<AppSettings>): AppSettings {
   }
   if (input.defaultIncomeCategoryId !== undefined) {
     setNullableIdValue('defaultIncomeCategoryId', input.defaultIncomeCategoryId)
+  }
+  if (input.syncEndpointUrl !== undefined) {
+    setNullableStringValue('syncEndpointUrl', input.syncEndpointUrl)
+  }
+  if (input.lastSyncedAt !== undefined) {
+    setNullableStringValue('lastSyncedAt', input.lastSyncedAt)
   }
   return getSettings()
 }

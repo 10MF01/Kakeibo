@@ -33,5 +33,10 @@ export const IPC = {
   },
   print: {
     ready: 'print:ready'
+  },
+  sync: {
+    getStatus: 'sync:getStatus',
+    setEndpointUrl: 'sync:setEndpointUrl',
+    syncNow: 'sync:syncNow'
   }
 } as const

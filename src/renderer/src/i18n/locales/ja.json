@@ -88,7 +88,7 @@
     "createPrimary": "カテゴリを新規作成",
     "empty": "カテゴリがありません",
     "deleteConfirmTitle": "このカテゴリを削除しますか？",
-    "deleteConfirmDesc": "紐づく記録がある場合は削除できません",
+    "deleteConfirmDesc": "削除後は一覧に表示されなくなりますが、既存の記録には引き続きこのカテゴリ名が表示されます",
     "editTitle": "カテゴリを編集",
     "form": {
       "name": "名称",
@@ -153,7 +153,17 @@
     "sound": "効果音",
     "soundDesc": "収入・支出を記録するときに効果音を再生します",
     "defaultCategory": "デフォルトカテゴリ",
-    "defaultCategoryDesc": "設定すると、収入・支出を新規追加する際に対応するカテゴリが自動的に選択されます"
+    "defaultCategoryDesc": "設定すると、収入・支出を新規追加する際に対応するカテゴリが自動的に選択されます",
+    "sync": "同期",
+    "syncDesc": "デプロイした Google Apps Script の同期アドレスを入力し、「今すぐ同期」でスマホ版とデータを共有できます。",
+    "syncEndpoint": "同期アドレス",
+    "syncEndpointPlaceholder": "Apps Script のURLを貼り付け（例：https://script.google.com/macros/s/xxx/exec）",
+    "syncNow": "今すぐ同期",
+    "syncing": "同期中…",
+    "lastSyncedAt": "前回の同期：{{time}}",
+    "neverSynced": "まだ同期していません",
+    "syncSuccess": "同期が完了しました（カテゴリ{{categories}}件、家計簿{{bills}}件、記録{{transactions}}件を取り込みました）",
+    "syncEndpointRequired": "先に同期アドレスを入力して保存してください"
   },
   "calculator": {
     "title": "電卓"
