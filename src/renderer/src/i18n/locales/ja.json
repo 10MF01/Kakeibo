@@ -151,7 +151,9 @@
     "language": "言語",
     "languageDesc": "言語を切り替えると金額表示の通貨記号も切り替わります",
     "sound": "効果音",
-    "soundDesc": "収入・支出を記録するときに効果音を再生します"
+    "soundDesc": "収入・支出を記録するときに効果音を再生します",
+    "defaultCategory": "デフォルトカテゴリ",
+    "defaultCategoryDesc": "設定すると、収入・支出を新規追加する際に対応するカテゴリが自動的に選択されます"
   },
   "calculator": {
     "title": "電卓"

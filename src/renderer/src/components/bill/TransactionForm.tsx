@@ -1,5 +1,6 @@
 import { useEffect, useMemo } from 'react'
 import { Form, Input, InputNumber, Modal, Radio, Select } from 'antd'
+import type { RadioChangeEvent } from 'antd'
 import { useTranslation } from 'react-i18next'
 import type { Category, CategoryType } from '@shared/types/category'
 import { useCurrencyFormatter } from '@renderer/hooks/useCurrencyFormatter'
@@ -24,6 +25,8 @@ interface TransactionFormProps {
   date: string
   categories: Category[]
   initialValues?: TransactionFormInitialValues
+  defaultExpenseCategoryId?: number | null
+  defaultIncomeCategoryId?: number | null
   confirmLoading?: boolean
   onCancel: () => void
   onSubmit: (values: TransactionFormValues) => Promise<void> | void
@@ -41,6 +44,8 @@ function TransactionForm({
   date,
   categories,
   initialValues,
+  defaultExpenseCategoryId,
+  defaultIncomeCategoryId,
   confirmLoading,
   onCancel,
   onSubmit
@@ -50,15 +55,23 @@ function TransactionForm({
   const [form] = Form.useForm<InternalFormValues>()
   const type = Form.useWatch('type', form)
 
+  const resolveDefaultCategoryId = (forType: CategoryType): number | undefined => {
+    const defaultId = forType === 'expense' ? defaultExpenseCategoryId : defaultIncomeCategoryId
+    if (!defaultId) return undefined
+    return categories.some((c) => c.id === defaultId && c.type === forType) ? defaultId : undefined
+  }
+
   useEffect(() => {
     if (open) {
+      const initialType = initialValues?.type ?? 'expense'
       form.setFieldsValue({
-        type: initialValues?.type ?? 'expense',
-        categoryId: initialValues?.categoryId,
+        type: initialType,
+        categoryId: initialValues?.categoryId ?? resolveDefaultCategoryId(initialType),
         displayAmount: initialValues?.amount ? initialValues.amount / 100 : undefined,
         note: initialValues?.note ?? undefined
       })
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, initialValues, form])
 
   const categoryOptions = useMemo(
@@ -69,8 +82,8 @@ function TransactionForm({
     [categories, type, t]
   )
 
-  const handleTypeChange = (): void => {
-    form.setFieldValue('categoryId', undefined)
+  const handleTypeChange = (e: RadioChangeEvent): void => {
+    form.setFieldValue('categoryId', resolveDefaultCategoryId(e.target.value as CategoryType))
   }
 
   const handleOk = async (): Promise<void> => {

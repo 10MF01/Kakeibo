@@ -20,11 +20,22 @@ function setValue(key: string, value: string): void {
   ).run(key, value)
 }
 
+function getNullableIdValue(key: string): number | null {
+  const value = getValue(key)
+  return value === undefined || value === '' ? null : Number(value)
+}
+
+function setNullableIdValue(key: string, value: number | null): void {
+  setValue(key, value === null ? '' : String(value))
+}
+
 export function getSettings(): AppSettings {
   const soundEnabledValue = getValue('soundEnabled')
   return {
     language: (getValue('language') as AppLanguage) ?? DEFAULT_LANGUAGE,
-    soundEnabled: soundEnabledValue === undefined ? DEFAULT_SOUND_ENABLED : soundEnabledValue === '1'
+    soundEnabled: soundEnabledValue === undefined ? DEFAULT_SOUND_ENABLED : soundEnabledValue === '1',
+    defaultExpenseCategoryId: getNullableIdValue('defaultExpenseCategoryId'),
+    defaultIncomeCategoryId: getNullableIdValue('defaultIncomeCategoryId')
   }
 }
 
@@ -34,6 +45,12 @@ export function updateSettings(input: Partial<AppSettings>): AppSettings {
   }
   if (input.soundEnabled !== undefined) {
     setValue('soundEnabled', input.soundEnabled ? '1' : '0')
+  }
+  if (input.defaultExpenseCategoryId !== undefined) {
+    setNullableIdValue('defaultExpenseCategoryId', input.defaultExpenseCategoryId)
+  }
+  if (input.defaultIncomeCategoryId !== undefined) {
+    setNullableIdValue('defaultIncomeCategoryId', input.defaultIncomeCategoryId)
   }
   return getSettings()
 }

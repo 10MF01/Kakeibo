@@ -151,7 +151,9 @@
     "language": "语言",
     "languageDesc": "切换语言会同时切换金额显示的货币符号",
     "sound": "音效",
-    "soundDesc": "记一笔收入/支出时播放提示音"
+    "soundDesc": "记一笔收入/支出时播放提示音",
+    "defaultCategory": "默认分类",
+    "defaultCategoryDesc": "设置后，新增收入/支出时会自动预选对应的分类"
   },
   "calculator": {
     "title": "计算器"

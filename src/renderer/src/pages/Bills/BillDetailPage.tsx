@@ -40,6 +40,8 @@ function BillDetailPage(): React.JSX.Element {
   const navigate = useNavigate()
   const { categories, fetch: fetchCategories } = useCategoryStore()
   const soundEnabled = useSettingsStore((s) => s.soundEnabled)
+  const defaultExpenseCategoryId = useSettingsStore((s) => s.defaultExpenseCategoryId)
+  const defaultIncomeCategoryId = useSettingsStore((s) => s.defaultIncomeCategoryId)
   const currency = useCurrencyFormatter()
   const [bill, setBill] = useState<Bill | null>(null)
   const [transactions, setTransactions] = useState<Transaction[]>([])
@@ -67,6 +69,7 @@ function BillDetailPage(): React.JSX.Element {
   }
 
   useEffect(() => {
+    setBill(null)
     fetchCategories()
     loadData()
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -130,7 +133,11 @@ function BillDetailPage(): React.JSX.Element {
     }
   }
 
-  if (loading || !bill) {
+  if (loading && !bill) {
+    return <Spin />
+  }
+
+  if (!bill) {
     return <Spin />
   }
 
@@ -195,6 +202,8 @@ function BillDetailPage(): React.JSX.Element {
         date={formState.date}
         categories={categories}
         initialValues={formState.editing}
+        defaultExpenseCategoryId={defaultExpenseCategoryId}
+        defaultIncomeCategoryId={defaultIncomeCategoryId}
         confirmLoading={submitting}
         onCancel={closeForm}
         onSubmit={handleSubmit}

@@ -151,7 +151,9 @@
     "language": "Language",
     "languageDesc": "Switching language also switches the currency symbol used for amounts",
     "sound": "Sound effects",
-    "soundDesc": "Play a sound when recording income or expense"
+    "soundDesc": "Play a sound when recording income or expense",
+    "defaultCategory": "Default category",
+    "defaultCategoryDesc": "When set, new income/expense entries will automatically preselect the matching category"
   },
   "calculator": {
     "title": "Calculator"
