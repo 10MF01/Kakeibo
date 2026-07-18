@@ -1,7 +1,6 @@
 export interface CategoryBreakdownItem {
   categoryId: number
   categoryName: string
-  categoryNameKey: string | null
   color: string | null
   total: number
   count: number

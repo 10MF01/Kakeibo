@@ -6,14 +6,12 @@ import { getReportSummary } from './reportService'
 import type { ExportResult } from '@shared/types/report'
 import { toDisplayAmount } from '@shared/amount'
 import { EXPORT_LABELS } from '@shared/exportLabels'
-import { resolveCategorySeedLabel } from '@shared/categorySeedLabels'
 import type { AppLanguage } from '@shared/types/settings'
 
 interface TransactionRow {
   date: string
   type: 'income' | 'expense'
   category: string
-  category_name_key: string | null
   amount: number
   note: string | null
 }
@@ -112,7 +110,7 @@ async function buildExcelBuffer(billId: number, language: AppLanguage): Promise<
   summary.expenseByCategory.forEach((item, i) => {
     const row = summarySheet.addRow({
       type: labels.expense,
-      category: resolveCategorySeedLabel(item.categoryNameKey, item.categoryName, language),
+      category: item.categoryName,
       amount: toDisplayAmount(item.total),
       percentage: item.percentage / 100,
       count: item.count
@@ -124,7 +122,7 @@ async function buildExcelBuffer(billId: number, language: AppLanguage): Promise<
   summary.incomeByCategory.forEach((item, i) => {
     const row = summarySheet.addRow({
       type: labels.income,
-      category: resolveCategorySeedLabel(item.categoryNameKey, item.categoryName, language),
+      category: item.categoryName,
       amount: toDisplayAmount(item.total),
       percentage: item.percentage / 100,
       count: item.count
@@ -135,7 +133,7 @@ async function buildExcelBuffer(billId: number, language: AppLanguage): Promise<
   const db = getDb()
   const transactions = db
     .prepare(
-      `SELECT t.date, t.type, c.name as category, c.name_key as category_name_key, t.amount, t.note
+      `SELECT t.date, t.type, c.name as category, t.amount, t.note
        FROM transactions t
        JOIN categories c ON t.category_id = c.id
        WHERE t.bill_id = ? AND t.deleted_at IS NULL
@@ -158,7 +156,7 @@ async function buildExcelBuffer(billId: number, language: AppLanguage): Promise<
     const row = txSheet.addRow({
       date: t.date,
       type: t.type === 'income' ? labels.income : labels.expense,
-      category: resolveCategorySeedLabel(t.category_name_key, t.category, language),
+      category: t.category,
       amount: toDisplayAmount(t.amount),
       note: t.note ?? ''
     })

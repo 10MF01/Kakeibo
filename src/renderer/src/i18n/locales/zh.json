@@ -101,23 +101,6 @@
       "CATEGORY_IN_USE": "该分类已被流水记录引用，无法删除",
       "CATEGORY_NOT_FOUND": "分类不存在，请刷新后重试",
       "default": "操作失败"
-    },
-    "seed": {
-      "food": "饮食",
-      "transport": "交通",
-      "housing": "住房",
-      "utilities": "水电燃气",
-      "entertainment": "娱乐",
-      "shopping": "购物",
-      "medical": "医疗",
-      "education": "教育",
-      "communication": "通讯",
-      "otherExpense": "其他支出",
-      "salary": "工资",
-      "bonus": "奖金",
-      "sideIncome": "兼职",
-      "investment": "投资收益",
-      "otherIncome": "其他收入"
     }
   },
   "report": {

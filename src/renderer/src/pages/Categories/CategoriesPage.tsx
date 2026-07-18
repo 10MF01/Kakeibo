@@ -145,7 +145,7 @@ function CategoriesPage(): React.JSX.Element {
         }
         initialValues={
           formState.mode === 'edit-primary' && formState.category
-            ? { name: categoryDisplayName(formState.category, t), color: formState.category.color }
+            ? { name: categoryDisplayName(formState.category), color: formState.category.color }
             : { color: nextColorFor(formState.type) }
         }
         confirmLoading={submitting}

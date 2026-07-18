@@ -8,6 +8,11 @@ import { migration005BackfillCategoryColors } from './migrations/005_backfill_ca
 import { migration006AddSyncUuid } from './migrations/006_add_sync_uuid'
 import { migration007DedupeCategories } from './migrations/007_dedupe_categories'
 import { migration008AddDeletedAt } from './migrations/008_add_deleted_at'
+import { migration009RealignCategories, realignCategories } from './migrations/009_realign_categories'
+import {
+  migration010PruneAndRenumberCategories,
+  pruneAndRenumberCategories
+} from './migrations/010_prune_and_renumber_categories'
 
 // Row ids are backfilled with a random uuid one-by-one (rather than in the migration's raw
 // SQL) because SQLite has no built-in UUID generation function to call from a single UPDATE.
@@ -75,7 +80,13 @@ const migrations: { version: number; sql: string; postRun?: (db: Database.Databa
   { version: 5, sql: migration005BackfillCategoryColors },
   { version: 6, sql: migration006AddSyncUuid, postRun: backfillUuids },
   { version: 7, sql: migration007DedupeCategories, postRun: dedupeCategories },
-  { version: 8, sql: migration008AddDeletedAt }
+  { version: 8, sql: migration008AddDeletedAt },
+  { version: 9, sql: migration009RealignCategories, postRun: realignCategories },
+  {
+    version: 10,
+    sql: migration010PruneAndRenumberCategories,
+    postRun: pruneAndRenumberCategories
+  }
 ]
 
 export function runMigrations(db: Database.Database): void {

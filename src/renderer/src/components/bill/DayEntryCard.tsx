@@ -107,7 +107,7 @@ function DayEntryCard({
                     <Tag color={tx.type === 'income' ? 'green' : 'volcano'}>
                       {tx.type === 'income' ? t('transaction.form.income') : t('transaction.form.expense')}
                     </Tag>
-                    <span>{category ? categoryDisplayName(category, t) : '-'}</span>
+                    <span>{category ? categoryDisplayName(category) : '-'}</span>
                     {tx.note && <Typography.Text type="secondary">{tx.note}</Typography.Text>}
                   </Space>
                   <span className="amount-cell">{currency.format(tx.amount)}</span>

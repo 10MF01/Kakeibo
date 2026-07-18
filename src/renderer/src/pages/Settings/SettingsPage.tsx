@@ -77,15 +77,15 @@ function SettingsPage(): React.JSX.Element {
     () =>
       categories
         .filter((c) => c.type === 'expense')
-        .map((c) => ({ value: c.id, label: categoryDisplayName(c, t) })),
-    [categories, t]
+        .map((c) => ({ value: c.id, label: categoryDisplayName(c) })),
+    [categories]
   )
   const incomeOptions = useMemo(
     () =>
       categories
         .filter((c) => c.type === 'income')
-        .map((c) => ({ value: c.id, label: categoryDisplayName(c, t) })),
-    [categories, t]
+        .map((c) => ({ value: c.id, label: categoryDisplayName(c) })),
+    [categories]
   )
 
   return (

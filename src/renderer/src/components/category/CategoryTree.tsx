@@ -71,7 +71,7 @@ function CategoryRow({ category, onEditPrimary, onDeletePrimary }: CategoryRowPr
               top: 3
             }}
           />
-          <Typography.Text strong>{categoryDisplayName(category, t)}</Typography.Text>
+          <Typography.Text strong>{categoryDisplayName(category)}</Typography.Text>
         </Space>
         <Space size={4}>
           <Button

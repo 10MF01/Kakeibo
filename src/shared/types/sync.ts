@@ -8,7 +8,7 @@ export interface SyncCategoryRecord {
   uuid: string
   type: CategoryType
   name: string
-  nameKey: string | null
+  seedKey: string | null
   icon: string | null
   color: string | null
   sortOrder: number

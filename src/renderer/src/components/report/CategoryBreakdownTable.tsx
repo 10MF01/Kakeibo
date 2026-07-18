@@ -22,7 +22,7 @@ function CategoryBreakdownTable({ data }: CategoryBreakdownTableProps): React.JS
         {
           title: t('report.table.category'),
           dataIndex: 'categoryName',
-          render: (_: string, record: CategoryBreakdownItem) => breakdownItemDisplayName(record, t)
+          render: (_: string, record: CategoryBreakdownItem) => breakdownItemDisplayName(record)
         },
         {
           title: t('report.table.amount'),

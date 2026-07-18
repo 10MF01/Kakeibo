@@ -101,23 +101,6 @@
       "CATEGORY_IN_USE": "このカテゴリは記録で使用されているため削除できません",
       "CATEGORY_NOT_FOUND": "カテゴリが見つかりません。再読み込みしてください",
       "default": "操作に失敗しました"
-    },
-    "seed": {
-      "food": "食費",
-      "transport": "交通費",
-      "housing": "住居費",
-      "utilities": "水道光熱費",
-      "entertainment": "娯楽費",
-      "shopping": "買い物",
-      "medical": "医療費",
-      "education": "教育費",
-      "communication": "通信費",
-      "otherExpense": "その他支出",
-      "salary": "給与",
-      "bonus": "ボーナス",
-      "sideIncome": "副業収入",
-      "investment": "投資収益",
-      "otherIncome": "その他収入"
     }
   },
   "report": {

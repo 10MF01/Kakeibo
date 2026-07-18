@@ -41,7 +41,7 @@ interface CategoryRow {
   uuid: string
   type: 'income' | 'expense'
   name: string
-  name_key: string | null
+  seed_key: string | null
   icon: string | null
   color: string | null
   sort_order: number
@@ -99,7 +99,7 @@ function buildPayload(db: Database.Database): SyncPayload {
         uuid: c.uuid,
         type: c.type,
         name: c.name,
-        nameKey: c.name_key,
+        seedKey: c.seed_key,
         icon: c.icon,
         color: c.color,
         sortOrder: c.sort_order,
@@ -166,33 +166,33 @@ function isNewer(remoteUpdatedAt: string, localUpdatedAt: string): boolean {
 function mergeCategories(db: Database.Database, records: SyncCategoryRecord[]): number {
   let count = 0
   const findStmt = db.prepare('SELECT updated_at FROM categories WHERE uuid = ?')
-  // Both desktop and mobile independently seed the same set of default categories (same
-  // name_key, different random uuid per device). Without this, syncing would duplicate every
-  // default category instead of recognizing them as "the same" category on both sides.
-  const findByNameKeyStmt = db.prepare(
-    'SELECT id FROM categories WHERE name_key = ? AND uuid <> ? LIMIT 1'
+  // `seed_key` is a permanent identity marker for default categories, set once and never cleared
+  // by a rename (see 009_realign_categories.ts) — it's how sync recognizes "this is the same
+  // default category on both devices" even after either side has renamed it.
+  const findBySeedKeyStmt = db.prepare(
+    'SELECT id FROM categories WHERE seed_key = ? AND uuid <> ? LIMIT 1'
   )
-  // Fallback for a record with no name_key match: if a local category already has the exact
-  // same (type, name) under a different uuid, treat it as "the same category" too rather than
-  // inserting a second row — that insert would otherwise crash on the (type, name) unique index
-  // (this is how a duplicate default/user category on one device used to break sync entirely).
+  // Last-resort fallback: if a local category already has the exact same (type, name) under a
+  // different uuid, treat it as "the same category" too rather than inserting a second row —
+  // that insert would otherwise crash on the (type, name) unique index (this is how a duplicate
+  // default/user category on one device used to break sync entirely).
   const findByNameStmt = db.prepare(
     'SELECT id FROM categories WHERE type = ? AND name = ? AND uuid <> ? LIMIT 1'
   )
   const adoptUuidStmt = db.prepare('UPDATE categories SET uuid = ? WHERE id = ?')
   const insertStmt = db.prepare(
-    `INSERT INTO categories (uuid, type, name, name_key, icon, color, sort_order, is_system, created_at, updated_at, deleted_at)
+    `INSERT INTO categories (uuid, type, name, seed_key, icon, color, sort_order, is_system, created_at, updated_at, deleted_at)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
   )
   const updateStmt = db.prepare(
-    `UPDATE categories SET type = ?, name = ?, name_key = ?, icon = ?, color = ?, sort_order = ?, is_system = ?, updated_at = ?, deleted_at = ?
+    `UPDATE categories SET type = ?, name = ?, seed_key = ?, icon = ?, color = ?, sort_order = ?, is_system = ?, updated_at = ?, deleted_at = ?
      WHERE uuid = ?`
   )
 
   for (const r of records) {
     let existing = findStmt.get(r.uuid) as { updated_at: string } | undefined
-    if (!existing && r.nameKey) {
-      const seedMatch = findByNameKeyStmt.get(r.nameKey, r.uuid) as { id: number } | undefined
+    if (!existing && r.seedKey) {
+      const seedMatch = findBySeedKeyStmt.get(r.seedKey, r.uuid) as { id: number } | undefined
       if (seedMatch) {
         adoptUuidStmt.run(r.uuid, seedMatch.id)
         existing = findStmt.get(r.uuid) as { updated_at: string } | undefined
@@ -210,7 +210,7 @@ function mergeCategories(db: Database.Database, records: SyncCategoryRecord[]): 
         r.uuid,
         r.type,
         r.name,
-        r.nameKey,
+        r.seedKey,
         r.icon,
         r.color,
         r.sortOrder,
@@ -224,7 +224,7 @@ function mergeCategories(db: Database.Database, records: SyncCategoryRecord[]): 
       updateStmt.run(
         r.type,
         r.name,
-        r.nameKey,
+        r.seedKey,
         r.icon,
         r.color,
         r.sortOrder,

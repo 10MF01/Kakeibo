@@ -101,23 +101,6 @@
       "CATEGORY_IN_USE": "This category is referenced by existing transactions",
       "CATEGORY_NOT_FOUND": "Category not found — please refresh",
       "default": "Something went wrong"
-    },
-    "seed": {
-      "food": "Food",
-      "transport": "Transport",
-      "housing": "Housing",
-      "utilities": "Utilities",
-      "entertainment": "Entertainment",
-      "shopping": "Shopping",
-      "medical": "Medical",
-      "education": "Education",
-      "communication": "Communication",
-      "otherExpense": "Other Expense",
-      "salary": "Salary",
-      "bonus": "Bonus",
-      "sideIncome": "Side Income",
-      "investment": "Investment",
-      "otherIncome": "Other Income"
     }
   },
   "report": {

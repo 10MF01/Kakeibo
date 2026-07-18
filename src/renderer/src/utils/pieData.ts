@@ -18,7 +18,7 @@ export function buildPieData(items: CategoryBreakdownItem[], t: TFunction): PieD
 
   if (sorted.length <= MAX_SLICES) {
     return sorted.map((item) => ({
-      name: breakdownItemDisplayName(item, t),
+      name: breakdownItemDisplayName(item),
       value: toDisplayAmount(item.total),
       color: item.color ?? colorForCategory(item.categoryId)
     }))
@@ -30,7 +30,7 @@ export function buildPieData(items: CategoryBreakdownItem[], t: TFunction): PieD
 
   return [
     ...head.map((item) => ({
-      name: breakdownItemDisplayName(item, t),
+      name: breakdownItemDisplayName(item),
       value: toDisplayAmount(item.total),
       color: item.color ?? colorForCategory(item.categoryId)
     })),

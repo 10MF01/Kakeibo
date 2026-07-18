@@ -78,8 +78,8 @@ function TransactionForm({
     () =>
       categories
         .filter((c) => c.type === type)
-        .map((c) => ({ value: c.id, label: categoryDisplayName(c, t) })),
-    [categories, type, t]
+        .map((c) => ({ value: c.id, label: categoryDisplayName(c) })),
+    [categories, type]
   )
 
   const handleTypeChange = (e: RadioChangeEvent): void => {

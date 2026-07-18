@@ -145,7 +145,7 @@ function DashboardPage(): React.JSX.Element {
                     <Tag color={t2.type === 'income' ? 'green' : 'volcano'}>
                       {t2.type === 'income' ? t('transaction.form.income') : t('transaction.form.expense')}
                     </Tag>
-                    <span>{category ? categoryDisplayName(category, t) : '-'}</span>
+                    <span>{category ? categoryDisplayName(category) : '-'}</span>
                   </Space>
                   <span>{currency.format(t2.amount)}</span>
                 </List.Item>

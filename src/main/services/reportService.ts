@@ -7,7 +7,6 @@ import type { CategoryType } from '@shared/types/category'
 interface AggregateRow {
   category_id: number
   name: string
-  name_key: string | null
   color: string | null
   total: number
   count: number
@@ -20,7 +19,7 @@ function aggregateByType(
 ): CategoryBreakdownItem[] {
   const rows = db
     .prepare(
-      `SELECT c.id as category_id, c.name as name, c.name_key as name_key, c.color as color, SUM(t.amount) as total, COUNT(*) as count
+      `SELECT c.id as category_id, c.name as name, c.color as color, SUM(t.amount) as total, COUNT(*) as count
        FROM transactions t
        JOIN categories c ON t.category_id = c.id
        WHERE t.bill_id = ? AND t.type = ? AND t.deleted_at IS NULL
@@ -34,7 +33,6 @@ function aggregateByType(
   return rows.map((r) => ({
     categoryId: r.category_id,
     categoryName: r.name,
-    categoryNameKey: r.name_key,
     color: r.color,
     total: r.total,
     count: r.count,

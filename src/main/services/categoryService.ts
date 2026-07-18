@@ -14,7 +14,7 @@ interface CategoryRow {
   uuid: string
   type: 'income' | 'expense'
   name: string
-  name_key: string | null
+  seed_key: string | null
   icon: string | null
   color: string | null
   sort_order: number
@@ -30,7 +30,7 @@ function rowToCategory(row: CategoryRow): Category {
     uuid: row.uuid,
     type: row.type,
     name: row.name,
-    nameKey: row.name_key,
+    seedKey: row.seed_key,
     icon: row.icon,
     color: row.color,
     sortOrder: row.sort_order,
@@ -109,8 +109,6 @@ export function updateCategory(id: number, input: CategoryUpdateInput): Category
   if (input.name !== undefined) {
     fields.push('name = ?')
     params.push(input.name)
-    // A user-edited name is free text from now on — stop retranslating it via name_key.
-    fields.push('name_key = NULL')
   }
   if (input.icon !== undefined) {
     fields.push('icon = ?')
