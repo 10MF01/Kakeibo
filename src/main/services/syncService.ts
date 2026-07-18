@@ -163,21 +163,33 @@ function isNewer(remoteUpdatedAt: string, localUpdatedAt: string): boolean {
 // a record just bumps its `updated_at` like any other edit, so whichever happened later — an
 // edit on one device or a delete on the other — wins normally, instead of a deleted row getting
 // silently re-inserted by the next sync because the deleting device has "no record" of it anymore.
+interface CategoryMatchCandidate {
+  id: number
+  updated_at: string
+  deleted_at: string | null
+}
+
 function mergeCategories(db: Database.Database, records: SyncCategoryRecord[]): number {
   let count = 0
-  const findStmt = db.prepare('SELECT updated_at FROM categories WHERE uuid = ?')
+  const findStmt = db.prepare('SELECT id, updated_at FROM categories WHERE uuid = ?')
   // `seed_key` is a permanent identity marker for default categories, set once and never cleared
   // by a rename (see 009_realign_categories.ts) — it's how sync recognizes "this is the same
-  // default category on both devices" even after either side has renamed it.
+  // default category on both devices" even after either side has renamed it. But a seed_key
+  // lookup alone can only ever surface a row that still carries that seed_key — a device's
+  // history of renames/prunes can leave the *real*, currently-active category sitting on a
+  // different row with no seed_key at all. So candidates are gathered by seed_key AND (type,
+  // name) together and merged, rather than falling back from one to the other, so the live row
+  // gets found even when the seed_key trail only leads to a stale, already-soft-deleted
+  // duplicate.
   const findBySeedKeyStmt = db.prepare(
-    'SELECT id FROM categories WHERE seed_key = ? AND uuid <> ? LIMIT 1'
+    'SELECT id, updated_at, deleted_at FROM categories WHERE seed_key = ? AND uuid <> ?'
   )
   // Last-resort fallback: if a local category already has the exact same (type, name) under a
   // different uuid, treat it as "the same category" too rather than inserting a second row —
   // that insert would otherwise crash on the (type, name) unique index (this is how a duplicate
   // default/user category on one device used to break sync entirely).
   const findByNameStmt = db.prepare(
-    'SELECT id FROM categories WHERE type = ? AND name = ? AND uuid <> ? LIMIT 1'
+    'SELECT id, updated_at, deleted_at FROM categories WHERE type = ? AND name = ? AND uuid <> ?'
   )
   const adoptUuidStmt = db.prepare('UPDATE categories SET uuid = ? WHERE id = ?')
   const insertStmt = db.prepare(
@@ -189,51 +201,83 @@ function mergeCategories(db: Database.Database, records: SyncCategoryRecord[]): 
      WHERE uuid = ?`
   )
 
-  for (const r of records) {
-    let existing = findStmt.get(r.uuid) as { updated_at: string } | undefined
-    if (!existing && r.seedKey) {
-      const seedMatch = findBySeedKeyStmt.get(r.seedKey, r.uuid) as { id: number } | undefined
-      if (seedMatch) {
-        adoptUuidStmt.run(r.uuid, seedMatch.id)
-        existing = findStmt.get(r.uuid) as { updated_at: string } | undefined
+  const claimedIds = new Set<number>()
+  // `claimedIds` excludes rows already bound to a different remote uuid earlier in this same
+  // import pass, so one duplicate record can't steal the row a sibling record already correctly
+  // claimed (e.g. relabeling the row transactions actually reference, silently breaking every
+  // transaction that points at it).
+  function findMatch(r: SyncCategoryRecord): CategoryMatchCandidate | undefined {
+    const bySeed = r.seedKey
+      ? (findBySeedKeyStmt.all(r.seedKey, r.uuid) as CategoryMatchCandidate[])
+      : []
+    const byName = findByNameStmt.all(r.type, r.name, r.uuid) as CategoryMatchCandidate[]
+    const seen = new Set<number>()
+    const candidates = [...bySeed, ...byName].filter((c) => {
+      if (seen.has(c.id) || claimedIds.has(c.id)) return false
+      seen.add(c.id)
+      return true
+    })
+    // Prefer an active candidate — with the partial unique index there's at most one active row
+    // per (type, name), so if one exists among the candidates it's always the correct row to
+    // adopt onto, rather than reviving a stale soft-deleted duplicate and colliding with it.
+    candidates.sort((a, b) => (a.deleted_at ? 1 : 0) - (b.deleted_at ? 1 : 0))
+    return candidates[0]
+  }
+
+  // Process active records before soft-deleted ones: if the remote payload contains both a live
+  // category and a stale tombstone duplicate for the same identity (a leftover from a past
+  // rename/prune bug on the exporting device), the live one must claim the matching local row
+  // first — otherwise the tombstone could grab it instead.
+  const ordered = [...records].sort((a, b) => (a.deletedAt ? 1 : 0) - (b.deletedAt ? 1 : 0))
+
+  for (const r of ordered) {
+    try {
+      let existing = findStmt.get(r.uuid) as { id: number; updated_at: string } | undefined
+      if (existing) claimedIds.add(existing.id)
+
+      if (!existing) {
+        const match = findMatch(r)
+        if (match) {
+          adoptUuidStmt.run(r.uuid, match.id)
+          claimedIds.add(match.id)
+          existing = { id: match.id, updated_at: match.updated_at }
+        }
       }
-    }
-    if (!existing) {
-      const nameMatch = findByNameStmt.get(r.type, r.name, r.uuid) as { id: number } | undefined
-      if (nameMatch) {
-        adoptUuidStmt.run(r.uuid, nameMatch.id)
-        existing = findStmt.get(r.uuid) as { updated_at: string } | undefined
+      if (!existing) {
+        insertStmt.run(
+          r.uuid,
+          r.type,
+          r.name,
+          r.seedKey,
+          r.icon,
+          r.color,
+          r.sortOrder,
+          r.isSystem ? 1 : 0,
+          r.createdAt,
+          r.updatedAt,
+          r.deletedAt
+        )
+        count++
+      } else if (isNewer(r.updatedAt, existing.updated_at)) {
+        updateStmt.run(
+          r.type,
+          r.name,
+          r.seedKey,
+          r.icon,
+          r.color,
+          r.sortOrder,
+          r.isSystem ? 1 : 0,
+          r.updatedAt,
+          r.deletedAt,
+          r.uuid
+        )
+        count++
       }
-    }
-    if (!existing) {
-      insertStmt.run(
-        r.uuid,
-        r.type,
-        r.name,
-        r.seedKey,
-        r.icon,
-        r.color,
-        r.sortOrder,
-        r.isSystem ? 1 : 0,
-        r.createdAt,
-        r.updatedAt,
-        r.deletedAt
-      )
-      count++
-    } else if (isNewer(r.updatedAt, existing.updated_at)) {
-      updateStmt.run(
-        r.type,
-        r.name,
-        r.seedKey,
-        r.icon,
-        r.color,
-        r.sortOrder,
-        r.isSystem ? 1 : 0,
-        r.updatedAt,
-        r.deletedAt,
-        r.uuid
-      )
-      count++
+    } catch (err) {
+      // One record's edge case (e.g. a residual name/type collision the ordering above still
+      // can't resolve) must not wedge the whole sync transaction and block every other category,
+      // bill, and transaction from merging — skip it and keep going.
+      console.warn(`mergeCategories: skipping record ${r.uuid} (${r.name}):`, err)
     }
   }
   return count
